@@ -172,7 +172,7 @@ if "selected_rows" not in st.session_state:
 
 @st.cache_data
 def get_article_table():
-    engine = create_connection()  # je bestaande engine-functie
+    conn = create_connection()  # pyodbc-verbinding
     query = """
         SELECT 
             [Material],
@@ -184,9 +184,10 @@ def get_article_table():
             [Min_afname]
         FROM dbo.artikelen
     """
-    with engine.connect() as conn:
-        df = pd.read_sql(query, conn)
+    df = pd.read_sql(query, conn)
+    conn.close()
     return df
+
 
 article_table = get_article_table()
 
