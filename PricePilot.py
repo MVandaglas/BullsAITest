@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, date
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, ColumnsAutoSizeMode, GridUpdateMode, DataReturnMode
 import openai
 from SAPprijs import sap_prices
-from Synonyms import synonym_dict
+# from Synonyms import synonym_dict
 from Articles import article_table
 import difflib
 from rapidfuzz import process, fuzz
@@ -636,6 +636,18 @@ def replace_synonyms(input_text, synonyms):
     for term, synonym in synonyms.items():
         input_text = input_text.replace(term, synonym)
     return input_text
+
+@st.cache_data
+def get_synonym_dict():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT Synoniem, Artikelnummer FROM SynoniemenAI")
+    rows = cursor.fetchall()
+    conn.close()
+    return {syn: art for syn, art in rows}
+
+synonym_dict = get_synonym_dict()
+
 
 def find_article_details(article_number, source=None, original_article_number=None):
     # Sla het originele artikelnummer alleen op als het nog niet bestaat
