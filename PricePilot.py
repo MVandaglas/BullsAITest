@@ -170,8 +170,26 @@ if "selected_rows" not in st.session_state:
     st.session_state.selected_rows = []
 
 
-# Converteer article_table naar DataFrame
-article_table = pd.DataFrame(article_table)
+@st.cache_data
+def get_article_table():
+    engine = create_connection()  # je bestaande engine-functie
+    query = """
+        SELECT 
+            [Material],
+            [Description],
+            [Min_prijs],
+            [Max_prijs],
+            [Productgroep],
+            [UC_waarde],
+            [Min_afname]
+        FROM dbo.artikelen
+    """
+    with engine.connect() as conn:
+        df = pd.read_sql(query, conn)
+    return df
+
+article_table = get_article_table()
+
 
 # Streamlit UI-instellingen
 # Maak de tabs aan
