@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, date
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, ColumnsAutoSizeMode, GridUpdateMode, DataReturnMode
 import openai
 from SAPprijs import sap_prices
-# from Synonyms import synonym_dict
+from Synonyms import synonym_dict
 from Articles import article_table
 import difflib
 from rapidfuzz import process, fuzz
@@ -170,27 +170,8 @@ if "selected_rows" not in st.session_state:
     st.session_state.selected_rows = []
 
 
-@st.cache_data
-def get_article_table():
-    conn = create_connection()  # pyodbc-verbinding
-    query = """
-        SELECT 
-            [Material],
-            [Description],
-            [Min_prijs],
-            [Max_prijs],
-            [Productgroep],
-            [UC_waarde],
-            [Min_afname]
-        FROM dbo.artikelen
-    """
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
-
-
-article_table = get_article_table()
-
+# Converteer article_table naar DataFrame
+article_table = pd.DataFrame(article_table)
 
 # Streamlit UI-instellingen
 # Maak de tabs aan
@@ -655,17 +636,6 @@ def replace_synonyms(input_text, synonyms):
     for term, synonym in synonyms.items():
         input_text = input_text.replace(term, synonym)
     return input_text
-
-@st.cache_data
-def get_synonym_dict():
-    engine = create_connection()  # Dit is je SQLAlchemy engine
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT Synoniem, Artikelnummer FROM SynoniemenAI"))
-        rows = result.fetchall()
-    return {row[0]: row[1] for row in rows}
-    
-synonym_dict = get_synonym_dict()
-
 
 def find_article_details(article_number, source=None, original_article_number=None):
     # Sla het originele artikelnummer alleen op als het nog niet bestaat
