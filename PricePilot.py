@@ -639,13 +639,12 @@ def replace_synonyms(input_text, synonyms):
 
 @st.cache_data
 def get_synonym_dict():
-    conn = create_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT Synoniem, Artikelnummer FROM SynoniemenAI")
-    rows = cursor.fetchall()
-    conn.close()
-    return {syn: art for syn, art in rows}
-
+    engine = create_connection()  # Dit is je SQLAlchemy engine
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT Synoniem, Artikelnummer FROM SynoniemenAI"))
+        rows = result.fetchall()
+    return {row[0]: row[1] for row in rows}
+    
 synonym_dict = get_synonym_dict()
 
 
