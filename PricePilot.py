@@ -2110,7 +2110,7 @@ def process_single_attachment(selected_name, selected_data):
             document_text = extract_text_from_excel(selected_data)
         elif ext == ".docx":
             document_text = extract_text_from_docx(selected_data)
-       elif ext == ".rtf":
+        elif ext == ".rtf":
             document_text = extract_text_from_rtf(selected_data)     
         elif ext == ".msg":
             return None
