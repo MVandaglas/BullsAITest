@@ -2637,7 +2637,6 @@ with tab1:
 # Opgeslagen Offertes tab
 
 
-
 with tab2:
 
     # Twee kolommen maken
@@ -2647,16 +2646,35 @@ with tab2:
         with st.expander("⚡ SAP format", expanded=True):
             if "offer_df" in st.session_state:
                 filtered_df = st.session_state.offer_df[["Artikelnummer", "Aantal", "Breedte", "Hoogte", "Spacer"]].copy()
-    
-                # Zorg dat spouw alleen het numerieke getal bevat
-                filtered_df["Spacer"] = filtered_df["Spacer"].str.extract(r'(\d+)')  # Haalt alleen het getal eruit
-    
+
+                # Bewaar originele Spacer-kolom voor logica
+                original_spacer = filtered_df["Spacer"]
+
+                # Haal alleen het numerieke deel uit Spacer
+                filtered_df["Spacer"] = filtered_df["Spacer"].str.extract(r'(\d+)')
+
+                # Voeg 3 lege kolommen toe vóór Spacertype
+                filtered_df[""] = ""
+                filtered_df["  "] = ""
+                filtered_df["   "] = ""
+
+                # Voeg kolom Spacertype toe: 13 als "warm edge" in oorspronkelijke waarde
+                filtered_df["Spacertype"] = original_spacer.str.contains("warm edge", case=False, na=False).map({True: 13, False: ""})
+
+                # Voeg 3 lege kolommen toe na Spacertype
+                filtered_df["    "] = ""
+                filtered_df["     "] = ""
+                filtered_df["      "] = ""
+
+                # Voeg kolom Spacerkleur toe: "zwart" als Spacertype 13
+                filtered_df["Spacerkleur"] = filtered_df["Spacertype"].apply(lambda x: "zwart" if x == 13 else "")
+
                 # Toon de gefilterde DataFrame
                 st.dataframe(filtered_df, use_container_width=True)
-    
+
                 # Zet DataFrame om naar tab-gescheiden tekst zonder headers
                 table_text = filtered_df.to_csv(index=False, sep="\t", header=False).strip()
-    
+
                 # JavaScript-code om de tabel naar het klembord te kopiëren
                 copy_js = f"""
                 <script>
@@ -2673,12 +2691,11 @@ with tab2:
                     📋 Kopieer naar klembord
                 </button>
                 """
-    
+
                 # Weergeven van de knop via Streamlit's componenten
                 st.components.v1.html(copy_js, height=50)
             else:
                 st.warning("Geen gegevens beschikbaar om weer te geven.")
-                        
 
 
 
