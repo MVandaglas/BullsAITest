@@ -2667,7 +2667,7 @@ with tab2:
                 filtered_df["      "] = ""
 
                 # Voeg kolom Spacerkleur toe: "Zwart" als Spacertype 13
-                filtered_df["Spacerkleur"] = filtered_df["Spacertype"].apply(lambda x: "Zwart" if x == 13 else "")
+                filtered_df["Spacerkleur"] = filtered_df["Spacertype"].apply(lambda x: "2" if x == 13 else "")
 
                 # Toon de gefilterde DataFrame
                 st.dataframe(filtered_df, use_container_width=True)
