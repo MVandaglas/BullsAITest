@@ -36,6 +36,7 @@ from msal import ConfidentialClientApplication
 import jwt
 import numpy as np
 import tempfile
+from tempfile import NamedTemporaryFile
 import pyodbc
 from sqlalchemy import create_engine, text
 import urllib
