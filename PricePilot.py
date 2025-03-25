@@ -1725,11 +1725,13 @@ def extract_text_from_rtf(rtf_bytes):
 
 def extract_text_from_doc(doc_bytes):
     """
-    Haalt tekst uit een .doc-bestand.
+    Haalt tekst uit een .doc-bestand door tijdelijk op te slaan.
     """
     try:
-        with BytesIO(doc_bytes) as buffer:
-            text = textract.process("", input_stream=buffer, extension='doc').decode("utf-8", errors="ignore")
+        with NamedTemporaryFile(delete=True, suffix=".doc") as tmp:
+            tmp.write(doc_bytes)
+            tmp.flush()
+            text = textract.process(tmp.name).decode("utf-8", errors="ignore")
         return text
     except Exception as e:
         st.error(f"Fout bij tekstextractie uit DOC: {e}")
