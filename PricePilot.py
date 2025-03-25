@@ -2219,7 +2219,7 @@ def process_attachment(attachments):
             return None  # Afbeeldingen negeren
 
         if ext not in valid_extensions:
-            st.warning("Alleen .pdf, .xlsx of .docx bestanden kunnen verwerkt worden.")
+            st.warning("Alleen .pdf, .xls(x), .rtf of .docx bestanden kunnen verwerkt worden.")
             return None
 
         # Direct verwerken zonder dropdown
