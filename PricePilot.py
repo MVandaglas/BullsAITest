@@ -2112,7 +2112,7 @@ def extract_data_with_gpt(prompt):
                 {"role": "system", "content": (
                     "Je bent een geavanceerde extractietool die glassamenstellingen uit een bestekformulier extraheert en deze omzet naar een tekstuele lijst.\n"
                     "Formatteer de output volgens het volgende formaat:\n"
-                    "[aantal]x {[omschrijving]} [breedte]x[hoogte] [WE]\n"
+                    "[aantal]x {[omschrijving]} [breedte]x[hoogte] [Warmedge] \n"
                     "Verwijder eventuele spaties uit de omschrijving, voorbeelden van omschrijvingen zijn '4-15-4', '8-18A-44.2', '33/1-33/1' of '5-5'.\n"
                     "Warmedge betekent een zwarte, of warmedge spacer/afstandhouder bij isolatieglas. Het is niet standaard of basic. Als van toepassing, eindig de regel met "WE", geen warmedge, plaats dan geen extra tekst.\n"
                     "Mocht een regel geen omschrijving hebben, neem je de omschrijving van de voorgaande regel.\n"
