@@ -45,6 +45,8 @@ import base64
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
 from pathlib import Path
 from striprtf.striprtf import rtf_to_text
+import textract
+import xlrd
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
@@ -1721,6 +1723,37 @@ def extract_text_from_rtf(rtf_bytes):
         st.error(f"Fout bij tekstextractie uit RTF: {e}")
         return ""
 
+def extract_text_from_doc(doc_bytes):
+    """
+    Haalt tekst uit een .doc-bestand.
+    """
+    try:
+        with BytesIO(doc_bytes) as buffer:
+            text = textract.process("", input_stream=buffer, extension='doc').decode("utf-8", errors="ignore")
+        return text
+    except Exception as e:
+        st.error(f"Fout bij tekstextractie uit DOC: {e}")
+        return ""
+
+def extract_text_from_xls(xls_bytes):
+    """
+    Haalt tekst of waarden uit een .xls-bestand.
+    """
+    try:
+        with BytesIO(xls_bytes) as buffer:
+            workbook = xlrd.open_workbook(file_contents=buffer.read())
+            result = []
+            for sheet in workbook.sheets():
+                for row_idx in range(sheet.nrows):
+                    row = sheet.row_values(row_idx)
+                    if any(cell != '' for cell in row):
+                        result.append(" | ".join(str(cell) for cell in row))
+        return "\n".join(result)
+    except Exception as e:
+        st.error(f"Fout bij tekstextractie uit XLS: {e}")
+        return ""
+
+
 
 def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
     try:
@@ -2112,10 +2145,14 @@ def process_single_attachment(selected_name, selected_data):
             document_text = extract_text_from_docx(selected_data)
         elif ext == ".rtf":
             document_text = extract_text_from_rtf(selected_data)     
+        elif ext == ".doc":
+            document_text = extract_text_from_doc(selected_data)  
+        elif ext == ".xls":
+            document_text = extract_text_from_xls(selected_data)  
         elif ext == ".msg":
             return None
         else:
-            st.error(f"Onbekend bestandstype: {ext}. Alleen .pdf, .xlsx, .rtf en .docx worden ondersteund.")
+            st.error(f"Onbekend bestandstype: {ext}. Alleen .pdf, .xls(x), .rtf, en .doc(x) worden ondersteund.")
             return None
 
         if not document_text:
@@ -2146,7 +2183,7 @@ def process_attachment(attachments):
     - Bij .msg: kies uit de bijlagen (alleen pdf/xlsx/docx).
     - Bij andere bestanden: verwerk direct.
     """
-    valid_extensions = [".pdf", ".xlsx", ".docx", ".msg", ".rtf"]
+    valid_extensions = [".pdf", ".xlsx", ".docx", ".msg", ".rtf", ".doc", ".xls"]
     excluded_extensions = (".png", ".jpg", ".jpeg")
 
     if isinstance(attachments, list):
