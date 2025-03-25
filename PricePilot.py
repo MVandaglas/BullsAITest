@@ -44,6 +44,7 @@ import speech_recognition as sr
 import base64
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
 from pathlib import Path
+from striprtf.striprtf import rtf_to_text
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
@@ -1707,6 +1708,19 @@ def extract_text_from_docx(docx_bytes):
         st.error(f"Fout bij tekstextractie uit Word: {e}")
         return ""
 
+def extract_text_from_rtf(rtf_bytes):
+    """
+    Haalt tekst uit een RTF-bestand.
+    """
+    try:
+        with BytesIO(rtf_bytes) as buffer:
+            rtf_content = buffer.read().decode("utf-8", errors="ignore")
+            text = rtf_to_text(rtf_content)
+        return text
+    except Exception as e:
+        st.error(f"Fout bij tekstextractie uit RTF: {e}")
+        return ""
+
 
 def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
     try:
@@ -2096,10 +2110,12 @@ def process_single_attachment(selected_name, selected_data):
             document_text = extract_text_from_excel(selected_data)
         elif ext == ".docx":
             document_text = extract_text_from_docx(selected_data)
+       elif ext == ".rtf":
+            document_text = extract_text_from_rtf(selected_data)     
         elif ext == ".msg":
             return None
         else:
-            st.error(f"Onbekend bestandstype: {ext}. Alleen .pdf, .xlsx en .docx worden ondersteund.")
+            st.error(f"Onbekend bestandstype: {ext}. Alleen .pdf, .xlsx, .rtf en .docx worden ondersteund.")
             return None
 
         if not document_text:
