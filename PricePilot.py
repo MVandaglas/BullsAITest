@@ -642,19 +642,6 @@ def replace_synonyms(input_text, synonyms):
     return input_text
 
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
-
-    if customer_input:
-    lines = customer_input.splitlines()
-    data = []
-    current_article_number = None
-    current_productgroup = "Alfa"  # default productgroep
-
-    for line in lines:
-        # Detecteer *productgroep* aanduiding zoals *Eclaz One*
-        group_match = re.match(r"\*(.+?)\*", line.strip())
-        if group_match:
-            current_productgroup = group_match.group(1).strip()
-            continue  # deze regel bevat alleen de productgroep
             
     st.write(f"🔍 Start zoeken naar: {lookup_article_number} in productgroep: {current_productgroup}")
 
