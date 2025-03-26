@@ -845,7 +845,7 @@ def update_offer_data(df):
         if pd.notna(row['Artikelnummer']):
             # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'])
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_productgroup)
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
@@ -1333,7 +1333,7 @@ def handle_gpt_chat():
 
             # Verwerking als er aantal, breedte & hoogte is
             elif quantity and (width and height):
-                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
 
                 if description:
                     spacer = determine_spacer(line)
@@ -1519,7 +1519,7 @@ def handle_mapped_data_to_offer(df):
 
         # Synoniem lookup en artikelgegevens ophalen
         lookup_article_number = synonym_dict.get(current_productgroup, {}).get(description, description)
-        description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
+        description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
 
         if description:
             recommended_price = calculate_recommended_price(min_price, max_price, prijsscherpte)
@@ -2320,7 +2320,7 @@ def handle_text_input(input_text):
     if matched_articles:
         response_text = "Bedoelt u de volgende samenstellingen:"
         for term, article_number in matched_articles:
-            description, _, _, _, _ = find_article_details(lookup_article_number)
+            description, _, _, _, _ = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
             if description:
                 response_text += f"- {description} met artikelnummer {article_number}\n"
 
