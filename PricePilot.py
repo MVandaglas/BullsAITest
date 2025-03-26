@@ -712,7 +712,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
 
     # 5. Geen match
     return (
-        lookup_article_number,
+        "niet gevonden",
         None,
         None,
         original_article_number,
