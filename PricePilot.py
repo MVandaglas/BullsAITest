@@ -642,14 +642,21 @@ def replace_synonyms(input_text, synonyms):
     return input_text
 
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
+    st.write(f"🔍 Start zoeken naar: {lookup_article_number} in productgroep: {current_productgroup}")
+
     product_dict = synonym_dict.get(current_productgroup, {})
+    st.write(f"📦 Aantal synoniemen in productgroep '{current_productgroup}': {len(product_dict)}")
 
     if original_article_number is None:
         original_article_number = lookup_article_number  
 
-    # 1. Exact match in synonym_dict[productgroup].values()
+    # 🔎 Stap 1: Exact match in synonym_dict[productgroup].values()
     if lookup_article_number in product_dict.values():
+        st.write(f"✅ Stap 1: Exact match gevonden in VALUES van '{current_productgroup}': {lookup_article_number}")
+        
         filtered_articles = article_table[article_table['Material'].astype(str) == str(lookup_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {lookup_article_number}")
+        
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -660,11 +667,17 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
+        else:
+            st.write(f"⚠️ Artikelnummer {lookup_article_number} gevonden in synonym_dict, maar NIET in article_table.")
 
-    # 2. Exacte match in synonym_dict[productgroup].keys()
+    # 🔎 Stap 2: Exacte match in synonym_dict[productgroup].keys()
     if lookup_article_number in product_dict.keys():
         matched_article_number = product_dict[lookup_article_number]
+        st.write(f"✅ Stap 2: Exact match gevonden in KEYS: {lookup_article_number} → {matched_article_number}")
+
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {matched_article_number}")
+
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -675,13 +688,19 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
+        else:
+            st.write(f"⚠️ Artikelnummer {matched_article_number} (uit keys) NIET gevonden in article_table.")
 
-    # 3. Fuzzy match via RapidFuzz
+    # 🔎 Stap 3: Fuzzy match met RapidFuzz
     closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
         matched_article_number = product_dict[best_match]
+        st.write(f"🧠 Stap 3: Fuzzy match (RapidFuzz) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
+
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor fuzzy materiaal: {matched_article_number}")
+
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -692,13 +711,19 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
+        else:
+            st.write(f"⚠️ Fuzzy gevonden materiaal {matched_article_number} NIET in article_table.")
 
-    # 4. Fuzzy match via difflib
+    # 🔎 Stap 4: Fuzzy match met difflib
     closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
     if closest_matches:
         best_match = closest_matches[0]
         matched_article_number = product_dict[best_match]
+        st.write(f"🧠 Stap 4: Fuzzy match (difflib) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
+
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor difflib materiaal: {matched_article_number}")
+
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -709,10 +734,13 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
+        else:
+            st.write(f"⚠️ Difflib gevonden materiaal {matched_article_number} NIET in article_table.")
 
-    # 5. Geen match
+    # ❌ Stap 5: Geen match
+    st.write(f"❌ Geen enkele match gevonden voor: {lookup_article_number} in productgroep {current_productgroup}")
     return (
-        "lookup_article_number",
+        lookup_article_number,
         None,
         None,
         original_article_number,
@@ -720,6 +748,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
         original_article_number,
         None
     )
+
 
 
 
