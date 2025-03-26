@@ -2090,8 +2090,8 @@ def extract_data_with_gpt(prompt):
                     "[aantal]x {[omschrijving]} [breedte]x[hoogte] [Warmedge] \n"
                     "Verwijder eventuele spaties uit de omschrijving, voorbeelden van omschrijvingen zijn '4-15-4', '8-18A-44.2', '33/1-33/1' of '5-5'.\n"
                     "Warmedge betekent een zwarte, of warmedge spacer/afstandhouder bij isolatieglas. Het is niet standaard of basic. Als van toepassing, eindig de regel met 'WE', geen warmedge, plaats dan geen extra tekst.\n"
-                    "Mocht de productgroep genoemd worden, bijv. 'Eclaz One', 'SS Zero', 'Alfa' (dat is HR++), 'Zonwerend', plaats deze dan bóven de regel tussen **, bijv. *Eclaz One*. Slechts wanneer er een regel is met een andere productgroep, voer je deze actie weer uit.\n"
                     "Mocht een regel geen omschrijving hebben, neem je de omschrijving van de voorgaande regel.\n"
+                    "Wanneer de productgroep genoemd wordt, bijv. 'Eclaz One', 'SS Zero', 'Alfa', 'Zonwerend' 'SKN', plaats deze dan bóven de regel tussen **, bijv. *Eclaz One*. Alle volgende regels zullen dan onder die productgroep vallen.\n"
                     "Houd je strikt aan dit formaat zonder extra uitleg, JSON, Markdown of aanvullende tekst."
                 )},
                 {"role": "user", "content": prompt}
