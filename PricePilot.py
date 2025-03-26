@@ -641,7 +641,7 @@ def replace_synonyms(input_text, synonyms):
         input_text = input_text.replace(term, synonym)
     return input_text
 
-def find_article_details(lookup_article_number, current_productgroup=current_productgroup, source=None, original_article_number=None):
+def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
     st.write(f"🔍 Start zoeken naar: {lookup_article_number} in productgroep: {current_productgroup}")
 
     product_dict = synonym_dict.get(current_productgroup, {})
@@ -2320,7 +2320,7 @@ def handle_text_input(input_text):
     if matched_articles:
         response_text = "Bedoelt u de volgende samenstellingen:"
         for term, article_number in matched_articles:
-            description, _, _, _, _ = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
+            description, _, _, _, _ = find_article_details(lookup_article_number)
             if description:
                 response_text += f"- {description} met artikelnummer {article_number}\n"
 
