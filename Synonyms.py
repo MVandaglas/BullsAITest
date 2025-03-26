@@ -2535,8 +2535,11 @@ synonym_dict = {
     "44/4-12-33/1": "1006427",
     "55/2-12-33/1": "1006428",
     "55/2-12-44/2": "1006429"
-
-}
+    "Pyroguard impact 7mm": "1006450",
+    "IP ThermControl 33/1 - 33/1LE1.1": "1006351",
+    "IP ThermControl 04 - 04LE1.1": "1006350",
+    "6-15A-4": "1006353",
+    "6-15A-CL13/EW30": "1001078"
     
      # Voeg hier alle andere benodigde synoniemen toe
 }
