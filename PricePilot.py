@@ -845,7 +845,7 @@ def update_offer_data(df):
         if pd.notna(row['Artikelnummer']):
             # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_productgroup)
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'])
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
@@ -1313,7 +1313,7 @@ def handle_gpt_chat():
                     m2_total = int(m2_match.group(4))
 
                 # Zoek artikeldata
-                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
 
 
                 if description:
