@@ -641,33 +641,29 @@ def replace_synonyms(input_text, synonyms):
         input_text = input_text.replace(term, synonym)
     return input_text
 
-def find_article_details(lookup_article_number, source=None, original_article_number=None):
-    # Sla het originele artikelnummer alleen op als het nog niet bestaat
+def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
+    product_dict = synonym_dict.get(current_productgroup, {})
+
     if original_article_number is None:
-        original_article_number = article_number  
-    
-    fuzzy_match = process.extractOne(article_number, synonym_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
+        original_article_number = lookup_article_number  
 
-    
-    difflib_match = difflib.get_close_matches(article_number, synonym_dict.keys(), n=1, cutoff=cutoff_value)
-
-    # 1. Controleer of artikelnummer een exacte match is in synonym_dict.values()
-    if article_number in synonym_dict.values():
-        filtered_articles = article_table[article_table['Material'].astype(str) == str(article_number)]
+    # 1. Exact match in synonym_dict[productgroup].values()
+    if lookup_article_number in product_dict.values():
+        filtered_articles = article_table[article_table['Material'].astype(str) == str(lookup_article_number)]
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
                 filtered_articles.iloc[0]['Min_prijs'],
                 filtered_articles.iloc[0]['Max_prijs'],
-                article_number,
+                lookup_article_number,
                 source if source else "synoniem",
-                original_article_number,  # Zorgt ervoor dat dit niet wordt overschreven
+                original_article_number,
                 None
             )
 
-    # 2. Controleer of artikelnummer een exacte match is in synonym_dict.keys()
-    if article_number in synonym_dict.keys():
-        matched_article_number = synonym_dict[article_number]  # Haal het bijbehorende artikelnummer op
+    # 2. Exacte match in synonym_dict[productgroup].keys()
+    if lookup_article_number in product_dict.keys():
+        matched_article_number = product_dict[lookup_article_number]
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
         if not filtered_articles.empty:
             return (
@@ -676,15 +672,15 @@ def find_article_details(lookup_article_number, source=None, original_article_nu
                 filtered_articles.iloc[0]['Max_prijs'],
                 matched_article_number,
                 source if source else "synoniem",
-                original_article_number,  # Zorgt ervoor dat dit niet wordt overschreven
+                original_article_number,
                 None
             )
 
-    # 3. Zoek naar een bijna-match met RapidFuzz
-    closest_match = process.extractOne(article_number, synonym_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
+    # 3. Fuzzy match via RapidFuzz
+    closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
-        matched_article_number = synonym_dict[best_match]
+        matched_article_number = product_dict[best_match]
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
         if not filtered_articles.empty:
             return (
@@ -693,15 +689,15 @@ def find_article_details(lookup_article_number, source=None, original_article_nu
                 filtered_articles.iloc[0]['Max_prijs'],
                 matched_article_number,
                 source if source else "interpretatie",
-                original_article_number,  # Zorgt ervoor dat dit niet wordt overschreven
+                original_article_number,
                 best_match
             )
 
-    # 4. Zoek naar een bijna-match met difflib
-    closest_matches = difflib.get_close_matches(article_number, synonym_dict.keys(), n=1, cutoff=cutoff_value)
+    # 4. Fuzzy match via difflib
+    closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
     if closest_matches:
         best_match = closest_matches[0]
-        matched_article_number = synonym_dict[best_match]
+        matched_article_number = product_dict[best_match]
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
         if not filtered_articles.empty:
             return (
@@ -710,20 +706,21 @@ def find_article_details(lookup_article_number, source=None, original_article_nu
                 filtered_articles.iloc[0]['Max_prijs'],
                 matched_article_number,
                 source if source else "interpretatie",
-                original_article_number,  # Zorgt ervoor dat dit niet wordt overschreven
+                original_article_number,
                 best_match
             )
 
-    # 5. Als alles niet matcht
+    # 5. Geen match
     return (
-        article_number,
+        lookup_article_number,
         None,
         None,
-        original_article_number,  # Zorgt ervoor dat dit niet wordt overschreven
+        original_article_number,
         source if source else "niet gevonden",
-        original_article_number,  # Zorgt ervoor dat dit niet wordt overschreven
+        original_article_number,
         None
     )
+
 
 
 # Werkt de artikelnummer bij in de DataFrame op basis van de ingevulde artikelnaam. Gebruikt fuzzy matching om de beste overeenkomst te vinden.
@@ -1287,7 +1284,8 @@ def handle_gpt_chat():
                     m2_total = int(m2_match.group(4))
 
                 # Zoek artikeldata
-                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
+
 
                 if description:
                     recommended_price = calculate_recommended_price(min_price, max_price, prijsscherpte)
@@ -1481,7 +1479,7 @@ def handle_mapped_data_to_offer(df):
         quantity = row["Aantal"]
 
         # Synoniem lookup en artikelgegevens ophalen
-        article_number = synonym_dict.get(description, description)
+        lookup_article_number = synonym_dict.get(current_productgroup, {}).get(description, description)
         description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
 
         if description:
