@@ -1371,27 +1371,37 @@ def handle_email_to_offer(email_body):
     if email_body:
         lines = email_body.splitlines()
         data = []
-        current_article_number = None  # Huidig artikelnummer onthouden
-        
+        current_article_number = None
+        current_productgroup = "Alfa"  # Pas dit aan als je dynamisch productgroepen wil herkennen
+
         for line in lines:
-            # Controleer of er een artikelnummer in de regel staat
+            # Optioneel: herken productgroep als die in de tekst staat (zoals *Eclaz One*)
+            group_match = re.match(r"\*(.+?)\*", line.strip())
+            if group_match:
+                current_productgroup = group_match.group(1).strip()
+                continue  # Deze regel bevat enkel de groep
+
+            # Detecteer artikelnummer
             detected_article_number = re.search(r'(\d+[./-]?\d*[-*#]\d+[./-]?\d*)', line)
             if detected_article_number:
-                current_article_number = detected_article_number.group(0)  # Update huidig artikelnummer
+                current_article_number = detected_article_number.group(0)
                 st.sidebar.info(f"Nieuw artikelnummer gevonden: {current_article_number}")
 
-            # Probeer m²-formaat en artikelnummer te detecteren
+            # Detecteer m2-format
             m2_match = re.search(r'(\d+)\s*m2.*?(\d+-\d+)|^(\d+-\d+).*?(\d+)\s*m2', line, re.IGNORECASE)
 
-            # Extract details zoals aantal, breedte en hoogte
+            # Extract details zoals aantal, afmetingen en artikelnummer
             quantity, width, height, article_number = extract_all_details(line)
 
-            # Als er geen artikelnummer in deze regel staat, gebruik de vorige (indien beschikbaar)
+            # Fallback naar eerder gevonden artikelnummer
             if not article_number and current_article_number:
                 article_number = current_article_number
                 st.sidebar.info(f"Geen nieuw artikelnummer gevonden, gebruik vorige: {article_number}")
 
-            # Verwerking als er een m²-match is
+            # Gebruik synoniemen mapping met productgroep
+            lookup_article_number = synonym_dict.get(current_productgroup, {}).get(article_number, article_number)
+
+            # Verwerking m2-regels
             if m2_match:
                 if m2_match.group(1):
                     m2_total = int(m2_match.group(1))
@@ -1400,11 +1410,12 @@ def handle_email_to_offer(email_body):
                     article_number = m2_match.group(3)
                     m2_total = int(m2_match.group(4))
 
-                # Gebruik het synoniemenwoordenboek
-                article_number = synonym_dict.get(article_number, article_number)
+                lookup_article_number = synonym_dict.get(current_productgroup, {}).get(article_number, article_number)
 
-                # Zoek artikelgegevens op
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(
+                    lookup_article_number,
+                    current_productgroup=current_productgroup
+                )
 
                 if description:
                     recommended_price = calculate_recommended_price(min_price, max_price, prijsscherpte)
@@ -1412,20 +1423,21 @@ def handle_email_to_offer(email_body):
                     prijs_backend = verkoopprijs if verkoopprijs is not None else recommended_price
 
                     data.append([
-                        None, description, article_number, None, None, None, None,
+                        None, description, artikelnummer, None, None, None, None,
                         None, f"{m2_total:.2f}",
-                        f"{recommended_price:.2f}" if recommended_price is not None else 0,
+                        f"{recommended_price:.2f}" if recommended_price else 0,
                         None, None, min_price, max_price, verkoopprijs, prijs_backend,
                         source, fuzzy_match, original_article_number
                     ])
                 else:
-                    st.sidebar.warning(f"Artikelnummer '{article_number}' niet gevonden in de artikelentabel.")
+                    st.sidebar.warning(f"Artikelnummer '{lookup_article_number}' niet gevonden in de artikelentabel.")
 
-            # Verwerking als er een aantal + breedte/hoogte is
+            # Verwerking regels met aantal en afmetingen
             elif quantity and (width and height):
-                # Zoek artikelgegevens op
-                article_number = synonym_dict.get(article_number, article_number)
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(
+                    lookup_article_number,
+                    current_productgroup=current_productgroup
+                )
 
                 if description:
                     spacer = determine_spacer(line)
@@ -1437,19 +1449,18 @@ def handle_email_to_offer(email_body):
                     prijs_backend = verkoopprijs if verkoopprijs is not None else recommended_price
 
                     data.append([
-                        None, description, article_number, spacer, width, height, quantity,
-                        f"{m2_per_piece:.2f}" if m2_per_piece is not None else None,
-                        f"{m2_total:.2f}" if m2_total is not None else None,
-                        f"{recommended_price:.2f}" if recommended_price is not None else 0,
+                        None, description, artikelnummer, spacer, width, height, quantity,
+                        f"{m2_per_piece:.2f}", f"{m2_total:.2f}",
+                        f"{recommended_price:.2f}" if recommended_price else 0,
                         min_price, None, max_price, None, verkoopprijs, prijs_backend,
                         source, fuzzy_match, original_article_number
                     ])
                 else:
-                    st.sidebar.warning(f"Artikelnummer '{article_number}' niet gevonden in de artikelentabel.")
+                    st.sidebar.warning(f"Artikelnummer '{lookup_article_number}' niet gevonden in de artikelentabel.")
             else:
                 st.sidebar.warning("Regel genegeerd: geen geldige breedte, hoogte of aantal gevonden.")
 
-        # Als data is verzameld, voeg het toe aan de offerte-overzichtstabel
+        # Zet data in offerteoverzicht
         if data:
             new_df = pd.DataFrame(data, columns=[
                 "Offertenummer", "Artikelnaam", "Artikelnummer", "Spacer", "Breedte", "Hoogte", 
@@ -1462,7 +1473,6 @@ def handle_email_to_offer(email_body):
             st.rerun()
         else:
             st.sidebar.warning("Geen gegevens gevonden om toe te voegen.")
-
 
 
 
