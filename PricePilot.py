@@ -641,7 +641,7 @@ def replace_synonyms(input_text, synonyms):
         input_text = input_text.replace(term, synonym)
     return input_text
 
-def find_article_details(lookup_article_number, current_productgroup=current_productgroup, source=None, original_article_number=None):
+def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
 
     if customer_input:
     lines = customer_input.splitlines()
@@ -859,7 +859,7 @@ def update_offer_data(df):
         if pd.notna(row['Artikelnummer']):
             # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'])
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'],current_productgroup=current_productgroup)
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
@@ -1327,7 +1327,7 @@ def handle_gpt_chat():
                     m2_total = int(m2_match.group(4))
 
                 # Zoek artikeldata
-                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
 
 
                 if description:
@@ -2334,7 +2334,7 @@ def handle_text_input(input_text):
     if matched_articles:
         response_text = "Bedoelt u de volgende samenstellingen:"
         for term, article_number in matched_articles:
-            description, _, _, _, _ = find_article_details(lookup_article_number)
+            description, _, _, _, _ = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
             if description:
                 response_text += f"- {description} met artikelnummer {article_number}\n"
 
