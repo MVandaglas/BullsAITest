@@ -59,6 +59,7 @@ TENANT_ID = st.secrets.get("TENANT_ID")
 CSV_PATH = st.secrets.get("SP_CSV_SYN")  # Pad naar TestSynoniem.csv in SharePoint
 SP_USERNAME = st.secrets.get("SP_USERNAME")
 SP_PASSWORD = st.secrets.get("SP_PASSWORD")
+OCR_API = st.secrets.get("OCR_API_KEY")
 
 # **Verbinding met Azure SQL Server**
 def create_connection():
@@ -75,6 +76,20 @@ def create_connection():
         st.error(f"Database fout: {e}")
         return None
 
+#API Koppeling voor OCR (Handgeschreven offertes vertalen)
+def extract_text_with_ocrspace(image_path):
+    url = 'https://api.ocr.space/parse/image'
+    with open(image_path, 'rb') as f:
+        response = requests.post(
+            url,
+            files={'filename': f},
+            data={
+                'apikey': OCR_API,  # Gratis demo key
+                'language': 'dut',       # Nederlands
+            }
+        )
+    result = response.json()
+    return result['ParsedResults'][0]['ParsedText'] if 'ParsedResults' in result else ''
 
 # Importeer prijsscherpte
 if "prijsscherpte_matrix" not in st.session_state:
@@ -1683,19 +1698,30 @@ def correct_backlog_rows(df_backlog):
     
     return pd.DataFrame(corrected_rows, columns=df_backlog.columns)
 
-reader = reader = easyocr.Reader(['nl', 'en'])  # Nederlands en Engels
 
 def extract_text_from_pdf(pdf_bytes):
     """
-    Haalt tekst uit een PDF-bestand.
+    Haalt tekst uit een PDF-bestand, inclusief OCR via OCR.space als er geen digitale tekst is.
     """
+    text = ""
     try:
         with pdfplumber.open(pdf_bytes) as pdf:
-            text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+                else:
+                    # Pagina als afbeelding opslaan
+                    image = page.to_image(resolution=300).original
+                    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                        image.save(tmp.name)
+                        ocr_text = extract_text_with_ocrspace(tmp.name)
+                        text += ocr_text + "\n"
         return text
     except Exception as e:
         st.error(f"Fout bij tekstextractie uit PDF: {e}")
         return ""
+
         
 def extract_text_from_excel(excel_bytes):
     """
