@@ -79,17 +79,42 @@ def create_connection():
 #API Koppeling voor OCR (Handgeschreven offertes vertalen)
 def extract_text_with_ocrspace(image_path):
     url = 'https://api.ocr.space/parse/image'
-    with open(image_path, 'rb') as f:
-        response = requests.post(
-            url,
-            files={'filename': f},
-            data={
-                'apikey': OCR_API,  # Gratis demo key
-                'language': 'dut',       # Nederlands
+
+    try:
+        st.info("🔄 OCR API-verzoek wordt voorbereid...")
+
+        with open(image_path, 'rb') as f:
+            files = {'filename': f}
+            data = {
+                'apikey': OCR_API,
+                'language': 'dut',
             }
-        )
-    result = response.json()
-    return result['ParsedResults'][0]['ParsedText'] if 'ParsedResults' in result else ''
+
+            st.write("📤 Verstuurde data:", data)
+            response = requests.post(url, files=files, data=data)
+        
+        st.write("✅ Verbinding met OCR API succesvol.")
+        st.write("📥 Ruwe response:", response.text)
+
+        result = response.json()
+
+        if result.get("IsErroredOnProcessing"):
+            st.error(f"OCR.space foutmelding: {result.get('ErrorMessage')}")
+            return ""
+        
+        parsed_results = result.get("ParsedResults")
+        if parsed_results and len(parsed_results) > 0:
+            parsed_text = parsed_results[0].get("ParsedText", "")
+            st.success("📄 OCR-resultaat succesvol ontvangen.")
+            st.write("🔍 Herkende tekst:", parsed_text)
+            return parsed_text
+        else:
+            st.warning("⚠️ Geen tekst herkend in OCR-resultaat.")
+            return ""
+
+    except Exception as e:
+        st.error(f"❌ Fout tijdens OCR API-aanroep: {e}")
+        return ""
 
 # Importeer prijsscherpte
 if "prijsscherpte_matrix" not in st.session_state:
