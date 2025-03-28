@@ -30,3 +30,4 @@ striprtf
 xlrd==1.2.0
 textract
 pymupdf
+pytesseract
