@@ -76,14 +76,32 @@ def create_connection():
         st.error(f"Database fout: {e}")
         return None
 
-#API Koppeling voor OCR (Handgeschreven offertes vertalen)
+import requests
+import streamlit as st
+from PIL import Image
+import tempfile
+import os
+
+# Hulpfunctie om een afbeelding te verkleinen naar max 1024 KB
+def compress_image(input_path, output_path, max_size=(1024, 1024), quality=70):
+    with Image.open(input_path) as img:
+        img = img.convert("RGB")
+        img.thumbnail(max_size)
+        img.save(output_path, format='JPEG', quality=quality)
+
+# API Koppeling voor OCR (Handgeschreven offertes vertalen)
 def extract_text_with_ocrspace(image_path):
     url = 'https://api.ocr.space/parse/image'
 
     try:
         st.info("🔄 OCR API-verzoek wordt voorbereid...")
 
-        with open(image_path, 'rb') as f:
+        # Comprimeer afbeelding eerst
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as compressed:
+            compress_image(image_path, compressed.name)
+            compressed_path = compressed.name
+
+        with open(compressed_path, 'rb') as f:
             files = {'filename': f}
             data = {
                 'apikey': OCR_API,
@@ -115,6 +133,12 @@ def extract_text_with_ocrspace(image_path):
     except Exception as e:
         st.error(f"❌ Fout tijdens OCR API-aanroep: {e}")
         return ""
+    finally:
+        try:
+            os.remove(compressed_path)  # Ruim tijdelijke afbeelding op
+        except:
+            pass
+
 
 # Importeer prijsscherpte
 if "prijsscherpte_matrix" not in st.session_state:
