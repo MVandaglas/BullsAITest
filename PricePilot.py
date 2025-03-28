@@ -1684,16 +1684,25 @@ def correct_backlog_rows(df_backlog):
 
 def extract_text_from_pdf(pdf_bytes):
     """
-    Haalt tekst uit een PDF-bestand.
+    Haalt tekst uit een PDF-bestand. Combineert pdfplumber (digitale tekst) met OCR (voor gescande tekst).
     """
     try:
+        text = ""
         with pdfplumber.open(pdf_bytes) as pdf:
-            text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+                else:
+                    # OCR toepassen op afbeelding van de pagina
+                    image = page.to_image(resolution=300).original
+                    ocr_text = pytesseract.image_to_string(image)
+                    text += ocr_text + "\n"
         return text
     except Exception as e:
         st.error(f"Fout bij tekstextractie uit PDF: {e}")
         return ""
-
+        
 def extract_text_from_excel(excel_bytes):
     """
     Haalt tekst uit een Excel (.xlsx) bestand.
