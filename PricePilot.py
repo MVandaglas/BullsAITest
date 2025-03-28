@@ -1686,23 +1686,16 @@ def correct_backlog_rows(df_backlog):
 reader = reader = easyocr.Reader(['nl', 'en'])  # Nederlands en Engels
 
 def extract_text_from_pdf(pdf_bytes):
-    text = ""
+    """
+    Haalt tekst uit een PDF-bestand.
+    """
     try:
         with pdfplumber.open(pdf_bytes) as pdf:
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-                else:
-                    # OCR op afbeelding
-                    image = page.to_image(resolution=300).original
-                    with tempfile.NamedTemporaryFile(suffix=".png") as temp:
-                        image.save(temp.name)
-                        ocr_text = reader.readtext(temp.name, detail=0)
-                        text += "\n".join(ocr_text) + "\n"
+            text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
         return text
     except Exception as e:
-        return f"Fout bij tekstextractie: {e}"
+        st.error(f"Fout bij tekstextractie uit PDF: {e}")
+        return ""
         
 def extract_text_from_excel(excel_bytes):
     """
