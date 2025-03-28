@@ -49,6 +49,7 @@ from striprtf.striprtf import rtf_to_text
 import textract
 import xlrd
 import pytesseract
+import easyocr
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
@@ -1682,7 +1683,7 @@ def correct_backlog_rows(df_backlog):
     
     return pd.DataFrame(corrected_rows, columns=df_backlog.columns)
 
-reader = easyocr.Reader(['nl', 'en'])  # Nederlands en Engels
+reader = reader = easyocr.Reader(['nl', 'en'], gpu=False)  # Nederlands en Engels
 
 def extract_text_from_pdf(pdf_bytes):
     text = ""
