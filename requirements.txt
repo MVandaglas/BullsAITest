@@ -32,3 +32,5 @@ textract
 pymupdf
 pytesseract
 easyocr
+torch
+torchvision
