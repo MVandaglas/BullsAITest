@@ -48,6 +48,7 @@ from pathlib import Path
 from striprtf.striprtf import rtf_to_text
 import textract
 import xlrd
+import pytesseract
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
