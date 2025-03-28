@@ -1683,7 +1683,7 @@ def correct_backlog_rows(df_backlog):
     
     return pd.DataFrame(corrected_rows, columns=df_backlog.columns)
 
-reader = reader = easyocr.Reader(['nl', 'en'], gpu=False)  # Nederlands en Engels
+reader = reader = easyocr.Reader(['nl', 'en'])  # Nederlands en Engels
 
 def extract_text_from_pdf(pdf_bytes):
     text = ""
