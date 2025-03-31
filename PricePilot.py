@@ -48,6 +48,7 @@ from pathlib import Path
 from striprtf.striprtf import rtf_to_text
 import textract
 import xlrd
+from productgroep_synoniemen import productgroep_synoniemen
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
@@ -172,6 +173,8 @@ if "saved_offers" not in st.session_state:
     st.session_state.saved_offers = pd.DataFrame(columns=["Offertenummer", "Klantnummer", "Eindbedrag", "Datum"])
 if "selected_rows" not in st.session_state:
     st.session_state.selected_rows = []
+
+
 
 
 # Converteer article_table naar DataFrame
@@ -1283,8 +1286,10 @@ def handle_gpt_chat():
             # Detecteer *productgroep* aanduiding zoals *Eclaz One*
             group_match = re.match(r"\*(.+?)\*", line.strip())
             if group_match:
-                current_productgroup = group_match.group(1).strip()
-                continue  # deze regel bevat alleen de productgroep
+                detected_group = detect_productgroup(group_match.group(1))
+                if detected_group:
+                    current_productgroup = detected_group
+                continue
 
             # Zoek artikelnummer in tekst
             detected_article_number = re.search(r'([A-Za-z0-9/.]+(?:\s*[-/*#]\s*[A-Za-z0-9/.]+)*)', line)
