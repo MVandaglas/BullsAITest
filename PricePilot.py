@@ -642,22 +642,14 @@ def replace_synonyms(input_text, synonyms):
     return input_text
 
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
-            
-    st.write(f"🔍 Start zoeken naar: {lookup_article_number} in productgroep: {current_productgroup}")
-
     product_dict = synonym_dict.get(current_productgroup, {})
-    st.write(f"📦 Aantal synoniemen in productgroep '{current_productgroup}': {len(product_dict)}")
 
     if original_article_number is None:
         original_article_number = lookup_article_number  
 
-    # 🔎 Stap 1: Exact match in synonym_dict[productgroup].values()
+    # 1. Exact match in synonym_dict[productgroup].values()
     if lookup_article_number in product_dict.values():
-        st.write(f"✅ Stap 1: Exact match gevonden in VALUES van '{current_productgroup}': {lookup_article_number}")
-        
         filtered_articles = article_table[article_table['Material'].astype(str) == str(lookup_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {lookup_article_number}")
-        
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -668,17 +660,11 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
-        else:
-            st.write(f"⚠️ Artikelnummer {lookup_article_number} gevonden in synonym_dict, maar NIET in article_table.")
 
-    # 🔎 Stap 2: Exacte match in synonym_dict[productgroup].keys()
+    # 2. Exacte match in synonym_dict[productgroup].keys()
     if lookup_article_number in product_dict.keys():
         matched_article_number = product_dict[lookup_article_number]
-        st.write(f"✅ Stap 2: Exact match gevonden in KEYS: {lookup_article_number} → {matched_article_number}")
-
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {matched_article_number}")
-
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -689,19 +675,13 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
-        else:
-            st.write(f"⚠️ Artikelnummer {matched_article_number} (uit keys) NIET gevonden in article_table.")
 
-    # 🔎 Stap 3: Fuzzy match met RapidFuzz
+    # 3. Fuzzy match via RapidFuzz
     closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
         matched_article_number = product_dict[best_match]
-        st.write(f"🧠 Stap 3: Fuzzy match (RapidFuzz) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
-
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor fuzzy materiaal: {matched_article_number}")
-
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -712,19 +692,13 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
-        else:
-            st.write(f"⚠️ Fuzzy gevonden materiaal {matched_article_number} NIET in article_table.")
 
-    # 🔎 Stap 4: Fuzzy match met difflib
+    # 4. Fuzzy match via difflib
     closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
     if closest_matches:
         best_match = closest_matches[0]
         matched_article_number = product_dict[best_match]
-        st.write(f"🧠 Stap 4: Fuzzy match (difflib) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
-
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor difflib materiaal: {matched_article_number}")
-
         if not filtered_articles.empty:
             return (
                 filtered_articles.iloc[0]['Description'],
@@ -735,13 +709,10 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
-        else:
-            st.write(f"⚠️ Difflib gevonden materiaal {matched_article_number} NIET in article_table.")
 
-    # ❌ Stap 5: Geen match
-    st.write(f"❌ Geen enkele match gevonden voor: {lookup_article_number} in productgroep {current_productgroup}")
+    # 5. Geen match
     return (
-        lookup_article_number,
+        "niet gevonden",
         None,
         None,
         original_article_number,
@@ -749,7 +720,6 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
         original_article_number,
         None
     )
-
 
 
 
@@ -846,7 +816,7 @@ def update_offer_data(df):
         if pd.notna(row['Artikelnummer']):
             # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'],current_productgroup=current_productgroup)
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'])
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
@@ -1334,7 +1304,7 @@ def handle_gpt_chat():
 
             # Verwerking als er aantal, breedte & hoogte is
             elif quantity and (width and height):
-                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
+                description, min_price, max_price, artikelnummer, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
 
                 if description:
                     spacer = determine_spacer(line)
@@ -1520,7 +1490,7 @@ def handle_mapped_data_to_offer(df):
 
         # Synoniem lookup en artikelgegevens ophalen
         lookup_article_number = synonym_dict.get(current_productgroup, {}).get(description, description)
-        description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
+        description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(lookup_article_number)
 
         if description:
             recommended_price = calculate_recommended_price(min_price, max_price, prijsscherpte)
@@ -2321,7 +2291,7 @@ def handle_text_input(input_text):
     if matched_articles:
         response_text = "Bedoelt u de volgende samenstellingen:"
         for term, article_number in matched_articles:
-            description, _, _, _, _ = find_article_details(lookup_article_number,current_productgroup=current_productgroup)
+            description, _, _, _, _ = find_article_details(lookup_article_number)
             if description:
                 response_text += f"- {description} met artikelnummer {article_number}\n"
 
