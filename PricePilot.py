@@ -846,7 +846,8 @@ def update_offer_data(df):
         if pd.notna(row['Artikelnummer']):
             # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'],current_productgroup=current_productgroup)
+                current_pg = st.session_state.get('current_productgroup', 'Alfa')
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg)
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
