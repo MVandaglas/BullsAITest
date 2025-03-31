@@ -526,11 +526,11 @@ with col2:
 with tab3:    
     cutoff_value = st.slider(
         "Matchwaarde AI",
-        min_value=0.01,
+        min_value=0.05,
         max_value=1.0,
-        value=0.6,  # Standaardwaarde
-        step=0.01,  # Stappen in float
-        help="Stel matchwaarde in. Hogere waarde betekent strengere matching, 0.6 aanbevolen."
+        value=0.8,  # Standaardwaarde
+        step=0.05,  # Stappen in float
+        help="Stel matchwaarde in. Hogere waarde betekent strengere matching, 0.8 aanbevolen."
     )
     
     # Bijlagen in mail definiëren
