@@ -48,7 +48,7 @@ from pathlib import Path
 from striprtf.striprtf import rtf_to_text
 import textract
 import xlrd
-from productgroep_synoniemen import Productgroepen_dict
+from ProductgroepSynoniemen import Productgroepen_dict
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
