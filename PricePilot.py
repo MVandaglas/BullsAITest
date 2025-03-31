@@ -48,8 +48,6 @@ from pathlib import Path
 from striprtf.striprtf import rtf_to_text
 import textract
 import xlrd
-import pytesseract
-import easyocr
 
 # 🔑 Configuratie
 CLIENT_ID = st.secrets.get("SP_CLIENTID")
@@ -59,7 +57,6 @@ TENANT_ID = st.secrets.get("TENANT_ID")
 CSV_PATH = st.secrets.get("SP_CSV_SYN")  # Pad naar TestSynoniem.csv in SharePoint
 SP_USERNAME = st.secrets.get("SP_USERNAME")
 SP_PASSWORD = st.secrets.get("SP_PASSWORD")
-OCR_API = st.secrets.get("OCR_API_KEY")
 
 # **Verbinding met Azure SQL Server**
 def create_connection():
@@ -75,69 +72,6 @@ def create_connection():
     except Exception as e:
         st.error(f"Database fout: {e}")
         return None
-
-import requests
-import streamlit as st
-from PIL import Image
-import tempfile
-import os
-
-# Hulpfunctie om een afbeelding te verkleinen naar max 1024 KB
-def compress_image(input_path, output_path, max_size=(1024, 1024), quality=70):
-    with Image.open(input_path) as img:
-        img = img.convert("RGB")
-        img.thumbnail(max_size)
-        img.save(output_path, format='JPEG', quality=quality)
-
-# API Koppeling voor OCR (Handgeschreven offertes vertalen)
-def extract_text_with_ocrspace(image_path):
-    url = 'https://api.ocr.space/parse/image'
-
-    try:
-        st.info("🔄 OCR API-verzoek wordt voorbereid...")
-
-        # Comprimeer afbeelding eerst
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as compressed:
-            compress_image(image_path, compressed.name)
-            compressed_path = compressed.name
-
-        with open(compressed_path, 'rb') as f:
-            files = {'filename': f}
-            data = {
-                'apikey': OCR_API,
-                'language': 'dut',
-            }
-
-            st.write("📤 Verstuurde data:", data)
-            response = requests.post(url, files=files, data=data)
-        
-        st.write("✅ Verbinding met OCR API succesvol.")
-        st.write("📥 Ruwe response:", response.text)
-
-        result = response.json()
-
-        if result.get("IsErroredOnProcessing"):
-            st.error(f"OCR.space foutmelding: {result.get('ErrorMessage')}")
-            return ""
-        
-        parsed_results = result.get("ParsedResults")
-        if parsed_results and len(parsed_results) > 0:
-            parsed_text = parsed_results[0].get("ParsedText", "")
-            st.success("📄 OCR-resultaat succesvol ontvangen.")
-            st.write("🔍 Herkende tekst:", parsed_text)
-            return parsed_text
-        else:
-            st.warning("⚠️ Geen tekst herkend in OCR-resultaat.")
-            return ""
-
-    except Exception as e:
-        st.error(f"❌ Fout tijdens OCR API-aanroep: {e}")
-        return ""
-    finally:
-        try:
-            os.remove(compressed_path)  # Ruim tijdelijke afbeelding op
-        except:
-            pass
 
 
 # Importeer prijsscherpte
@@ -1747,31 +1681,18 @@ def correct_backlog_rows(df_backlog):
     
     return pd.DataFrame(corrected_rows, columns=df_backlog.columns)
 
-
 def extract_text_from_pdf(pdf_bytes):
     """
-    Haalt tekst uit een PDF-bestand, inclusief OCR via OCR.space als er geen digitale tekst is.
+    Haalt tekst uit een PDF-bestand.
     """
-    text = ""
     try:
         with pdfplumber.open(pdf_bytes) as pdf:
-            for page in pdf.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    text += page_text + "\n"
-                else:
-                    # Pagina als afbeelding opslaan
-                    image = page.to_image(resolution=300).original
-                    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                        image.save(tmp.name)
-                        ocr_text = extract_text_with_ocrspace(tmp.name)
-                        text += ocr_text + "\n"
+            text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
         return text
     except Exception as e:
         st.error(f"Fout bij tekstextractie uit PDF: {e}")
         return ""
 
-        
 def extract_text_from_excel(excel_bytes):
     """
     Haalt tekst uit een Excel (.xlsx) bestand.
