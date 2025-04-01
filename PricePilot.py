@@ -3092,94 +3092,94 @@ with tab5:
     #                 else:
     #                     st.warning("⚠️ Selecteer een account en spreek iets in!")
 
-def genereer_prompt(bedrijfsnaam, vestigingsplaats):
-    prompt = (
-        f"Geef een gestructureerd en gedetailleerd overzicht van zakelijke informatie die je kunt afleiden over {bedrijfsnaam} in {vestigingsplaats}, "
-        "op basis van jouw kennis en beschikbare informatie. Geef waar mogelijk een overzicht van:\n\n"
-        "- Bedrijfsprofiel (locatie, branche, activiteiten)\n"
-        "- Producten en/of diensten\n"
-        "- Mogelijke markten waarin het bedrijf actief is\n"
-        "- Typische klanten of partners\n"
-        "- Aantal werknemers en als mogelijk aangevuld met een verwacht omzetpotentieel\n"
-        "- Strategische doelstellingen of groeirichtingen\n"
-        "- Algemene uitdagingen binnen de sector\n"
-        "- Indien beschikbaar: generieke voorbeelden van recente overnames, investeringen of nieuwsontwikkelingen\n"
-        "- Suggesties waar aanvullende of actuele informatie te vinden is (zoals KvK, jaarverslagen of sectorwebsites)\n\n"
-        "Presenteer dit overzicht in duidelijke bullets per categorie. Gebruik jouw kennis van de markt om het profiel zo realistisch mogelijk te schetsen.\n "
-        "Doe geen aannames en reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
-    )
-    return prompt
-
-def verkrijg_openai_response(prompt):
-    try:
-        response = openai.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Je bent een behulpzame assistent."},
-                {"role": "user", "content": prompt},
-            ]
+    def genereer_prompt(bedrijfsnaam, vestigingsplaats):
+        prompt = (
+            f"Geef een gestructureerd en gedetailleerd overzicht van zakelijke informatie die je kunt afleiden over {bedrijfsnaam} in {vestigingsplaats}, "
+            "op basis van jouw kennis en beschikbare informatie. Geef waar mogelijk een overzicht van:\n\n"
+            "- Bedrijfsprofiel (locatie, branche, activiteiten)\n"
+            "- Producten en/of diensten\n"
+            "- Mogelijke markten waarin het bedrijf actief is\n"
+            "- Typische klanten of partners\n"
+            "- Aantal werknemers en als mogelijk aangevuld met een verwacht omzetpotentieel\n"
+            "- Strategische doelstellingen of groeirichtingen\n"
+            "- Algemene uitdagingen binnen de sector\n"
+            "- Indien beschikbaar: generieke voorbeelden van recente overnames, investeringen of nieuwsontwikkelingen\n"
+            "- Suggesties waar aanvullende of actuele informatie te vinden is (zoals KvK, jaarverslagen of sectorwebsites)\n\n"
+            "Presenteer dit overzicht in duidelijke bullets per categorie. Gebruik jouw kennis van de markt om het profiel zo realistisch mogelijk te schetsen.\n "
+            "Doe geen aannames en reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
         )
-        return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Er is een fout opgetreden: {str(e)}"
-
-# Functie om een GPT-resultaat als PDF te genereren
-def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: str):
-    from reportlab.lib.pagesizes import A4
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.enums import TA_LEFT
-    from io import BytesIO
-
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
-    elements = []
-
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name='Justify', alignment=TA_LEFT, leading=14))
-
-    # Titel
-    title = f"Informatie over {bedrijfsnaam} ({vestigingsplaats})"
-    elements.append(Paragraph(title, styles['Title']))
-    elements.append(Spacer(1, 12))
-
-    # GPT-inhoud opsplitsen per regel
-    for line in content.split('\n'):
-        if line.strip() != "":
-            elements.append(Paragraph(line.strip(), styles['Justify']))
-            elements.append(Spacer(1, 6))
-
-    doc.build(elements)
-    pdf = buffer.getvalue()
-    buffer.close()
-    return pdf
-
-# Streamlit-app lay-out
-st.header("Scout 🕵️‍♂️")
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    bedrijfsnaam = st.text_input("Naam van het bedrijf:")
-    vestigingsplaats = st.text_input("Vestigingsplaats van het bedrijf:")
-
-if st.button("Zoek Informatie"):
-    if bedrijfsnaam and vestigingsplaats:
-        prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
-        with st.spinner("Bezig met het ophalen van informatie..."):
-            response = verkrijg_openai_response(prompt)
-
-        st.markdown("### Resultaten:")
-        st.write(response)
-
-        pdf_bytes = generate_pdf_from_text(response, bedrijfsnaam, vestigingsplaats)
-        st.download_button(
-            label="📄 Download resultaat als PDF",
-            data=pdf_bytes,
-            file_name=f"{bedrijfsnaam.replace(' ', '_')}_informatie.pdf",
-            mime="application/pdf"
-        )
-    else:
-        st.warning("Vul zowel de bedrijfsnaam als de vestigingsplaats in.")
+        return prompt
+    
+    def verkrijg_openai_response(prompt):
+        try:
+            response = openai.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "Je bent een behulpzame assistent."},
+                    {"role": "user", "content": prompt},
+                ]
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"Er is een fout opgetreden: {str(e)}"
+    
+    # Functie om een GPT-resultaat als PDF te genereren
+    def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: str):
+        from reportlab.lib.pagesizes import A4
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_LEFT
+        from io import BytesIO
+    
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
+        elements = []
+    
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(name='Justify', alignment=TA_LEFT, leading=14))
+    
+        # Titel
+        title = f"Informatie over {bedrijfsnaam} ({vestigingsplaats})"
+        elements.append(Paragraph(title, styles['Title']))
+        elements.append(Spacer(1, 12))
+    
+        # GPT-inhoud opsplitsen per regel
+        for line in content.split('\n'):
+            if line.strip() != "":
+                elements.append(Paragraph(line.strip(), styles['Justify']))
+                elements.append(Spacer(1, 6))
+    
+        doc.build(elements)
+        pdf = buffer.getvalue()
+        buffer.close()
+        return pdf
+    
+    # Streamlit-app lay-out
+    st.header("Scout 🕵️‍♂️")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        bedrijfsnaam = st.text_input("Naam van het bedrijf:")
+        vestigingsplaats = st.text_input("Vestigingsplaats van het bedrijf:")
+    
+    if st.button("Zoek Informatie"):
+        if bedrijfsnaam and vestigingsplaats:
+            prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
+            with st.spinner("Bezig met het ophalen van informatie..."):
+                response = verkrijg_openai_response(prompt)
+    
+            st.markdown("### Resultaten:")
+            st.write(response)
+    
+            pdf_bytes = generate_pdf_from_text(response, bedrijfsnaam, vestigingsplaats)
+            st.download_button(
+                label="📄 Download resultaat als PDF",
+                data=pdf_bytes,
+                file_name=f"{bedrijfsnaam.replace(' ', '_')}_informatie.pdf",
+                mime="application/pdf"
+            )
+        else:
+            st.warning("Vul zowel de bedrijfsnaam als de vestigingsplaats in.")
 
     
 
