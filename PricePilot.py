@@ -3112,7 +3112,7 @@ with tab5:
                     {"role": "user", "content": prompt},
                 ]
             )
-            return response.choices[0].message['content'].strip()
+            return response.choices[0].message.content.strip()
         except Exception as e:
             return f"Er is een fout opgetreden: {str(e)}"
 
