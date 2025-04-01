@@ -3132,6 +3132,49 @@ with tab5:
         else:
             st.warning("Vul zowel de bedrijfsnaam als de vestigingsplaats in.")
 
+# Functie om een GPT-resultaat als PDF te genereren en te downloaden
+def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: str):
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfgen import canvas
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT
+    from io import BytesIO
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=30, leftMargin=30, topMargin=30, bottomMargin=18)
+    elements = []
+
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='Justify', alignment=TA_LEFT, leading=14))
+
+    # Titel
+    title = f"Informatie over {bedrijfsnaam} ({vestigingsplaats})"
+    elements.append(Paragraph(title, styles['Title']))
+    elements.append(Spacer(1, 12))
+
+    # GPT-inhoud opsplitsen per regel
+    for line in content.split('\n'):
+        if line.strip() != "":
+            elements.append(Paragraph(line.strip(), styles['Justify']))
+            elements.append(Spacer(1, 6))
+
+    # Bouw het PDF-document
+    doc.build(elements)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+
+    pdf_bytes = generate_pdf_from_text(response, bedrijfsnaam, vestigingsplaats)
+    
+    st.download_button(
+        label="📄 Download resultaat als PDF",
+        data=pdf_bytes,
+        file_name=f"{bedrijfsnaam.replace(' ', '_')}_informatie.pdf",
+        mime="application/pdf"
+    )
+
     # # Ophalen van gegevens
     # if st.button("Haal gegevens op"):
     #     response = session.get(list_items_url, headers=headers)
