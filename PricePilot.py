@@ -3094,14 +3094,14 @@ with tab5:
                         st.warning("⚠️ Selecteer een account en spreek iets in!")
 
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
-    prompt = (
-        f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over {bedrijfsnaam} in {vestigingsplaats}, "
-        "inclusief recente nieuwsartikelen, financiële gegevens, producten/diensten, markten waarin ze actief zijn, klanten en partners, "
-        "strategische doelstellingen, recente overnames of investeringen, en eventuele uitdagingen of negatieve publiciteit. "
-        "Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Graag samengevat in duidelijke bullets per categorie. "
-        "Voeg waar mogelijk ook bronnen toe."
-    )
-    return prompt
+        prompt = (
+            f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over {bedrijfsnaam} in {vestigingsplaats}, "
+            "inclusief recente nieuwsartikelen, financiële gegevens, producten/diensten, markten waarin ze actief zijn, klanten en partners, "
+            "strategische doelstellingen, recente overnames of investeringen, en eventuele uitdagingen of negatieve publiciteit. "
+            "Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Graag samengevat in duidelijke bullets per categorie. "
+            "Voeg waar mogelijk ook bronnen toe."
+        )
+        return prompt
 
     def verkrijg_openai_response(prompt):
     try:
