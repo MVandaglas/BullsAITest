@@ -3099,7 +3099,7 @@ with tab5:
             "inclusief recente nieuwsartikelen, financiële gegevens, producten/diensten, markten waarin ze actief zijn, klanten en partners, "
             "strategische doelstellingen, recente overnames of investeringen, en eventuele uitdagingen of negatieve publiciteit. "
             "Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Graag samengevat in duidelijke bullets per categorie. "
-            "Voeg waar mogelijk ook bronnen toe."
+            "Reageer alleen met het resultaat, zonder begeleidend schrijven."
         )
         return prompt
 
