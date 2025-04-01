@@ -3105,7 +3105,7 @@ with tab5:
 
     def verkrijg_openai_response(prompt):
         try:
-            response = openai.Chat.Completions.create(
+            response = openai.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Je bent een behulpzame assistent."},
