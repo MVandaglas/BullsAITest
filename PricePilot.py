@@ -3094,8 +3094,8 @@ with tab5:
 
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
         prompt = (
-            f"Geef een gestructureerd en gedetailleerd overzicht van zakelijke informatie die je kunt afleiden of aannemen over {bedrijfsnaam} in {vestigingsplaats}, "
-            "op basis van jouw kennis en vergelijkbare bedrijven. Geef waar mogelijk een indicatie van:\n\n"
+            f"Geef een gestructureerd en gedetailleerd overzicht van zakelijke informatie die je kunt afleiden over {bedrijfsnaam} in {vestigingsplaats}, "
+            "op basis van jouw kennis n beschikbare informatie. Geef waar mogelijk een overzicht van:\n\n"
             "- Bedrijfsprofiel (locatie, branche, activiteiten)\n"
             "- Producten en/of diensten\n"
             "- Mogelijke markten waarin het bedrijf actief is\n"
@@ -3104,8 +3104,8 @@ with tab5:
             "- Algemene uitdagingen binnen de sector\n"
             "- Indien beschikbaar: generieke voorbeelden van recente overnames, investeringen of nieuwsontwikkelingen\n"
             "- Suggesties waar aanvullende of actuele informatie te vinden is (zoals KvK, jaarverslagen of sectorwebsites)\n\n"
-            "Presenteer dit overzicht in duidelijke bullets per categorie. Gebruik jouw kennis van de markt om het profiel zo realistisch mogelijk te schetsen. "
-            "Reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
+            "Presenteer dit overzicht in duidelijke bullets per categorie. Gebruik jouw kennis van de markt om het profiel zo realistisch mogelijk te schetsen.\n "
+            "Doe geen aannames en reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
         )
         return prompt
 
