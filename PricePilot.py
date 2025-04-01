@@ -3104,17 +3104,17 @@ with tab5:
         return prompt
 
     def verkrijg_openai_response(prompt):
-    try:
-        response = openai.Chat.Completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "Je bent een behulpzame assistent."},
-                {"role": "user", "content": prompt},
-            ]
-        )
-        return response.choices[0].message['content'].strip()
-    except Exception as e:
-        return f"Er is een fout opgetreden: {str(e)}"
+        try:
+            response = openai.Chat.Completions.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "Je bent een behulpzame assistent."},
+                    {"role": "user", "content": prompt},
+                ]
+            )
+            return response.choices[0].message['content'].strip()
+        except Exception as e:
+            return f"Er is een fout opgetreden: {str(e)}"
 
     # Streamlit-app lay-out
     st.header("Zakelijke Informatie Zoeker")
