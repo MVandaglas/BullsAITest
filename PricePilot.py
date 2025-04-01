@@ -1000,6 +1000,8 @@ gb.configure_column("M2 p/s", editable=False, type=["numericColumn"], cellStyle=
 gb.configure_column("M2 totaal", editable=False, type=["numericColumn"], cellStyle={"backgroundColor": "#e0e0e0"}, valueFormatter="x.toFixed(2)")
 gb.configure_column("SAP Prijs", editable=False, type=["numericColumn"], valueFormatter="x.toFixed(2)", cellStyle=cell_style_js)
 gb.configure_column("Source", hide=True)
+gb.configure_column("fuzzy_match", hide=True)
+gb.configure_column("original_article_number", hide=True)
 
 
 # Configuratie voor selectie, inclusief checkbox in de header voor "select all"
