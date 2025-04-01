@@ -3117,9 +3117,11 @@ with tab5:
 
     # Streamlit-app lay-out
     st.header("Scout 🕵️‍♂️")
-    
-    bedrijfsnaam = st.text_input("Naam van het bedrijf:")
-    vestigingsplaats = st.text_input("Vestigingsplaats van het bedrijf:")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        bedrijfsnaam = st.text_input("Naam van het bedrijf:")
+        vestigingsplaats = st.text_input("Vestigingsplaats van het bedrijf:")
     
     if st.button("Zoek Informatie"):
         if bedrijfsnaam and vestigingsplaats:
