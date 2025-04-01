@@ -3093,6 +3093,45 @@ with tab5:
                     else:
                         st.warning("⚠️ Selecteer een account en spreek iets in!")
 
+    def genereer_prompt(bedrijfsnaam, vestigingsplaats):
+    prompt = (
+        f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over {bedrijfsnaam} in {vestigingsplaats}, "
+        "inclusief recente nieuwsartikelen, financiële gegevens, producten/diensten, markten waarin ze actief zijn, klanten en partners, "
+        "strategische doelstellingen, recente overnames of investeringen, en eventuele uitdagingen of negatieve publiciteit. "
+        "Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Graag samengevat in duidelijke bullets per categorie. "
+        "Voeg waar mogelijk ook bronnen toe."
+    )
+    return prompt
+
+    def verkrijg_openai_response(prompt):
+    try:
+        response = openai.Chat.Completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "Je bent een behulpzame assistent."},
+                {"role": "user", "content": prompt},
+            ]
+        )
+        return response.choices[0].message['content'].strip()
+    except Exception as e:
+        return f"Er is een fout opgetreden: {str(e)}"
+
+    # Streamlit-app lay-out
+    st.header("Zakelijke Informatie Zoeker")
+    
+    bedrijfsnaam = st.text_input("Naam van het bedrijf:")
+    vestigingsplaats = st.text_input("Vestigingsplaats van het bedrijf:")
+    
+    if st.button("Zoek Informatie"):
+        if bedrijfsnaam and vestigingsplaats:
+            prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
+            with st.spinner("Bezig met het ophalen van informatie..."):
+                response = verkrijg_openai_response(prompt)
+            st.markdown("### Resultaten:")
+            st.write(response)
+        else:
+            st.warning("Vul zowel de bedrijfsnaam als de vestigingsplaats in.")
+
     # # Ophalen van gegevens
     # if st.button("Haal gegevens op"):
     #     response = session.get(list_items_url, headers=headers)
