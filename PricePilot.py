@@ -188,7 +188,7 @@ article_table = pd.DataFrame(article_table)
 
 # Streamlit UI-instellingen
 # Maak de tabs aan
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎯 Offerte Genereren", "⚡ Order-entry", "✨ Beoordeel AI", "⚙️ Beheer","🛠️ Tools"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎯 Offerte Genereren", "⚡ Order-entry", "✨ Beoordeel AI", "⚙️ Beheer","🕵️‍♂️ Scout"])
 
 with tab4:
     st.subheader("Beheer")
