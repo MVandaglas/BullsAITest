@@ -3139,6 +3139,14 @@ with tab5:
                 response = verkrijg_openai_response(prompt)
             st.markdown("### Resultaten:")
             st.write(response)
+
+            pdf_bytes = generate_pdf_from_text(response, bedrijfsnaam, vestigingsplaats)
+            st.download_button(
+                label="📄 Download resultaat als PDF",
+                data=pdf_bytes,
+                file_name=f"{bedrijfsnaam.replace(' ', '_')}_informatie.pdf",
+                mime="application/pdf"
+            )
         else:
             st.warning("Vul zowel de bedrijfsnaam als de vestigingsplaats in.")
 
@@ -3178,12 +3186,6 @@ def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: st
 
     pdf_bytes = generate_pdf_from_text(response, bedrijfsnaam, vestigingsplaats)
     
-    st.download_button(
-        label="📄 Download resultaat als PDF",
-        data=pdf_bytes,
-        file_name=f"{bedrijfsnaam.replace(' ', '_')}_informatie.pdf",
-        mime="application/pdf"
-    )
 
     # # Ophalen van gegevens
     # if st.button("Haal gegevens op"):
