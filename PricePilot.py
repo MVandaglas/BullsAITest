@@ -2985,7 +2985,6 @@ with col2:
     )
 
 with tab5:
-    st.subheader("Tools")
 
     # # 🎙️ Spraakherkenning instellen
     # recognizer = sr.Recognizer()
