@@ -3098,6 +3098,7 @@ with tab5:
             "inclusief recente nieuwsartikelen, financiële gegevens, producten/diensten, markten waarin ze actief zijn, klanten en partners, "
             "strategische doelstellingen, recente overnames of investeringen, en eventuele uitdagingen of negatieve publiciteit. "
             "Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Graag samengevat in duidelijke bullets per categorie. "
+            "Voeg waar kan de link naar de bron toe. "
             "Reageer alleen met het resultaat, zonder begeleidend schrijven."
         )
         return prompt
@@ -3105,7 +3106,7 @@ with tab5:
     def verkrijg_openai_response(prompt):
         try:
             response = openai.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4",
                 messages=[
                     {"role": "system", "content": "Je bent een behulpzame assistent."},
                     {"role": "user", "content": prompt},
