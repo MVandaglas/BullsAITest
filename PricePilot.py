@@ -753,7 +753,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
         lookup_article_number,
         None,
         None,
-        original_article_number,
+        '1000000',
         source if source else "niet gevonden",
         original_article_number,
         None
