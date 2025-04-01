@@ -3100,6 +3100,7 @@ with tab5:
             "- Producten en/of diensten\n"
             "- Mogelijke markten waarin het bedrijf actief is\n"
             "- Typische klanten of partners\n"
+            "- Aantal werknemers en als mogelijk aangevuld met een verwacht omzetpotentieel\n"
             "- Strategische doelstellingen of groeirichtingen\n"
             "- Algemene uitdagingen binnen de sector\n"
             "- Indien beschikbaar: generieke voorbeelden van recente overnames, investeringen of nieuwsontwikkelingen\n"
