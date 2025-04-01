@@ -3094,15 +3094,22 @@ with tab5:
 
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
         prompt = (
-            f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over {bedrijfsnaam} in {vestigingsplaats}, "
-            "inclusief recente nieuwsartikelen, financiële gegevens, producten/diensten, markten waarin ze actief zijn, klanten en partners, "
-            "strategische doelstellingen, recente overnames of investeringen, en eventuele uitdagingen of negatieve publiciteit. "
-            "Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Graag samengevat in duidelijke bullets per categorie. "
-            "Voeg waar kan de link naar de bron toe. "
-            "Reageer alleen met het resultaat, zonder begeleidend schrijven."
+            f"Geef een gestructureerd en gedetailleerd overzicht van zakelijke informatie die je kunt afleiden of aannemen over {bedrijfsnaam} in {vestigingsplaats}, "
+            "op basis van jouw kennis en vergelijkbare bedrijven. Geef waar mogelijk een indicatie van:\n\n"
+            "- Bedrijfsprofiel (locatie, branche, activiteiten)\n"
+            "- Producten en/of diensten\n"
+            "- Mogelijke markten waarin het bedrijf actief is\n"
+            "- Typische klanten of partners\n"
+            "- Strategische doelstellingen of groeirichtingen\n"
+            "- Algemene uitdagingen binnen de sector\n"
+            "- Indien beschikbaar: generieke voorbeelden van recente overnames, investeringen of nieuwsontwikkelingen\n"
+            "- Suggesties waar aanvullende of actuele informatie te vinden is (zoals KvK, jaarverslagen of sectorwebsites)\n\n"
+            "Presenteer dit overzicht in duidelijke bullets per categorie. Gebruik jouw kennis van de markt om het profiel zo realistisch mogelijk te schetsen. "
+            "Reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
         )
         return prompt
 
+    
     def verkrijg_openai_response(prompt):
         try:
             response = openai.chat.completions.create(
