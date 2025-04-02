@@ -2670,7 +2670,7 @@ with tab1:
 with tab2:
 
     # Twee kolommen maken
-    col1, col2 = st.columns([2, 3])  
+    col1, col2 = st.columns([1, 1])  
     with col1:
         # Expander onder AgGrid met een gefilterde DataFrame-weergave
         with st.expander("⚡ SAP format", expanded=True):
