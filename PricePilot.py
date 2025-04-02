@@ -3118,11 +3118,18 @@ with tab5:
                 "messages": [
                     {
                         "role": "system",
-                        "content": "Je bent een behulpzame zakelijke assistent. Geef volledige bronvermeldingen als URLs wanneer je iets beweert."
+                        "content": "Je bent een behulpzame zakelijke assistent. Gebruik bronvermeldingen op een overzichtelijke en professionele manier."
                     },
                     {
                         "role": "user",
-                        "content": prompt + " Voeg bij elk feit of cijfer een concrete bronvermelding als volledige URL toe. Geen verwijzingen zoals [1] of [2], maar echte klikbare links."
+                        "content": prompt + (
+                            " Gebruik verwijzingen zoals [1], [2], [3] in de hoofdtekst waar nodig. "
+                            "Voeg aan het einde van het antwoord een lijst toe met de bijbehorende bronnen in het volgende format:\n"
+                            "[1] https://voorbeeld1.nl\n"
+                            "[2] https://voorbeeld2.nl\n"
+                            "[3] https://voorbeeld3.nl\n"
+                            "Zorg ervoor dat de nummers overeenkomen met de verwijzingen in de tekst."
+                        )
                     }
                 ]
             }
