@@ -3097,10 +3097,10 @@ with tab5:
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
         prompt = (
             f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over "
-            f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, meest recente omzet, financiële gegevens, "
+            f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, omzet en andere financiële gegevens, "
             f"producten/diensten, markten waarin ze actief zijn, klanten en partners, strategische doelstellingen, aantal werknemers,"
-            f"recente overnames of investeringen, eventuele uitdagingen, recente publieke uitingen, of negatieve publiciteit. "
-            f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Lopende (glas)projecten en benoem de CEO/algemeen directeur/eigenaar en zijn telefoonnummer en e-mailadres. "
+            f"recente overnames of investeringen. "
+            f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Benoem de CEO/algemeen directeur/eigenaar en zijn telefoonnummer en e-mailadres. "
             f"Graag samengevat in duidelijke bullets per categorie."
             )
         
@@ -3114,7 +3114,7 @@ with tab5:
             }
     
             payload = {
-                "model": "sonar",
+                "model": "sonar-pro",
                 "messages": [
                     {
                         "role": "system",
@@ -3188,7 +3188,7 @@ with tab5:
     if st.button("Stuur scout op pad"):
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
-            with st.spinner(f"De scout is voor je op pad en brengt zo verslag uit over {bedrijfsnaam.title()} uit {vestigingsplaats.title()} voor je."):
+            with st.spinner(f"De scout is voor je op pad..."):
                 response = verkrijg_perplexity_response(prompt)
     
             st.markdown("### Resultaten:")
