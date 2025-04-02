@@ -3123,9 +3123,9 @@ with tab5:
     
             return response.choices[0].message.content.strip()
 
-    except Exception as e:
-        return f"Er is een fout opgetreden: {str(e)}"
-    
+        except Exception as e:
+            return f"Er is een fout opgetreden: {str(e)}"
+        
     # Functie om een GPT-resultaat als PDF te genereren
     def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: str):
         from reportlab.lib.pagesizes import A4
