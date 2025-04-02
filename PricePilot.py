@@ -3096,7 +3096,7 @@ with tab5:
 
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
         prompt = (
-            f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over "
+            f"Neem diep adem, en geef mij een zeer gedetailleerd overzicht van alle beschikbare zakelijke informatie over "
             f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, omzet en andere financiële gegevens, "
             f"producten/diensten, markten waarin ze actief zijn, klanten en partners, strategische doelstellingen, aantal werknemers,"
             f"recente overnames of investeringen. "
@@ -3188,7 +3188,7 @@ with tab5:
     if st.button("Stuur scout op pad!"):
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
-            with st.spinner(f"De scout is voor je op pad..."):
+            with st.spinner(f"Aan het scouten..."):
                 response = verkrijg_perplexity_response(prompt)
     
             st.markdown("### Resultaten:")
