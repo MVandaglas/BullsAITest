@@ -3114,7 +3114,7 @@ with tab5:
             }
     
             payload = {
-                "model": "sonar",  
+                "model": "sonar-pro",  
                 "messages": [
                     {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
                     {"role": "user", "content": prompt}
@@ -3127,7 +3127,8 @@ with tab5:
                 return f"Er is een fout opgetreden: {response.status_code} - {response.text}"
     
             result = response.json()
-            return result.choices[0].message.content.strip()
+            antwoord = result["choices"][0]["message"]["content"]
+            return antwoord.strip()
     
         except Exception as e:
             return f"Er is een fout opgetreden: {str(e)}"
