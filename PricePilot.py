@@ -3181,7 +3181,7 @@ with tab5:
     if st.button("Zoek Informatie"):
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
-            with st.spinner("Bezig met het ophalen van informatie..."):
+            with st.spinner(f"Even geduld... we scouten {bedrijfsnaam.title()} in {vestigingsplaats.title()} voor je"):
                 response = verkrijg_perplexity_response(prompt)
     
             st.markdown("### Resultaten:")
