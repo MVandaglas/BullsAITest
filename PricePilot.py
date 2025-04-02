@@ -3108,24 +3108,30 @@ with tab5:
     
     def verkrijg_perplexity_response(prompt: str) -> str:
         try:
-            # Stel de Perplexity API-instellingen in
-            openai.api_base = "https://api.perplexity.ai/chat/completions"
-            openai.api_key = api_key  # API voor Scout
+            headers = {
+                "Authorization": f"Bearer {pplx_api_key}",
+                "Content-Type": "application/json"
+            }
     
-            # Verstuur de prompt als chatbericht
-            response = openai.chat.completions.create(
-                model="sonar-pro",  # of gebruik "sonar" als je een sneller model wil
-                messages=[
+            payload = {
+                "model": "sonar",  
+                "messages": [
                     {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
                     {"role": "user", "content": prompt}
                 ]
-            )
+            }
     
-            return response.choices[0].message.content.strip()
-                
+            response = requests.post("https://api.perplexity.ai/chat/completions", headers=headers, json=payload)
+    
+            if response.status_code != 200:
+                return f"Er is een fout opgetreden: {response.status_code} - {response.text}"
+    
+            result = response.json()
+            return result.choices[0].message.content.strip()
+    
         except Exception as e:
             return f"Er is een fout opgetreden: {str(e)}"
-        
+            
     # Functie om een GPT-resultaat als PDF te genereren
     def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: str):
         from reportlab.lib.pagesizes import A4
