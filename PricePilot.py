@@ -3097,7 +3097,7 @@ with tab5:
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
         prompt = (
             f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over "
-            f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, financiële gegevens, "
+            f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, meest recente omzet, financiële gegevens, "
             f"producten/diensten, markten waarin ze actief zijn, klanten en partners, strategische doelstellingen, aantal werknemers,"
             f"recente overnames of investeringen, en eventuele uitdagingen, recente publieke uitingen, of negatieve publiciteit. "
             f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. "
@@ -3114,7 +3114,7 @@ with tab5:
             }
     
             payload = {
-                "model": "sonar-pro",  
+                "model": "sonar",  
                 "messages": [
                     {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
                     {"role": "user", "content": prompt}
