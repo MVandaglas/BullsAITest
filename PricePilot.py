@@ -150,6 +150,8 @@ if not api_key:
 else:
     openai.api_key = api_key  # Initialize OpenAI ChatCompletion client
 
+pplx_api_key = os.getenv("PERPLEXITY_API_KEY") # Perplexity api key t.b.v. Scout
+
 
 # Zorg ervoor dat de database bij opstarten correct is
 setup_database()
@@ -3094,34 +3096,35 @@ with tab5:
 
     def genereer_prompt(bedrijfsnaam, vestigingsplaats):
         prompt = (
-            f"Geef een gestructureerd en gedetailleerd overzicht van zakelijke informatie die je kunt afleiden over {bedrijfsnaam} in {vestigingsplaats}, "
-            "op basis van jouw kennis en beschikbare informatie. Geef waar mogelijk een overzicht van:\n\n"
-            "- Bedrijfsprofiel (locatie, branche, activiteiten)\n"
-            "- Producten en/of diensten\n"
-            "- Mogelijke markten waarin het bedrijf actief is\n"
-            "- Typische klanten of partners\n"
-            "- Aantal werknemers en als mogelijk aangevuld met een verwacht omzetpotentieel\n"
-            "- Strategische doelstellingen of groeirichtingen\n"
-            "- Algemene uitdagingen binnen de sector\n"
-            "- Indien beschikbaar: generieke voorbeelden van recente overnames, investeringen of nieuwsontwikkelingen\n"
-            "- Suggesties waar aanvullende of actuele informatie te vinden is (zoals KvK, jaarverslagen of sectorwebsites)\n\n"
-            "Presenteer dit overzicht in duidelijke bullets per categorie. Gebruik jouw kennis van de markt om het profiel zo realistisch mogelijk te schetsen.\n "
-            "Doe geen aannames en reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
-        )
+            f"Geef mij een gedetailleerd overzicht van alle beschikbare zakelijke informatie over "
+            f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, financiële gegevens, "
+            f"producten/diensten, markten waarin ze actief zijn, klanten en partners, strategische doelstellingen, aantal werknemers,"
+            f"recente overnames of investeringen, en eventuele uitdagingen, recente publieke uitingen, of negatieve publiciteit. "
+            f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. "
+            f"Graag samengevat in duidelijke bullets per categorie. Voeg waar mogelijk ook bronnen toe."
+            )
+        
         return prompt
     
-    def verkrijg_openai_response(prompt):
+    def verkrijg_perplexity_response(prompt: str) -> str:
         try:
-            response = openai.chat.completions.create(
-                model="gpt-4o",
+            # Stel de Perplexity API-instellingen in
+            openai.api_base = "https://api.perplexity.ai"
+            openai.api_key = "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"  #
+    
+            # Verstuur de prompt als chatbericht
+            response = openai.Chat.Completions.create(
+                model="sonar-pro",  # of gebruik "sonar" als je een sneller model wil
                 messages=[
-                    {"role": "system", "content": "Je bent een behulpzame assistent."},
-                    {"role": "user", "content": prompt},
+                    {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
+                    {"role": "user", "content": prompt}
                 ]
             )
+    
             return response.choices[0].message.content.strip()
-        except Exception as e:
-            return f"Er is een fout opgetreden: {str(e)}"
+
+    except Exception as e:
+        return f"Er is een fout opgetreden: {str(e)}"
     
     # Functie om een GPT-resultaat als PDF te genereren
     def generate_pdf_from_text(content: str, bedrijfsnaam: str, vestigingsplaats: str):
@@ -3166,7 +3169,7 @@ with tab5:
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
             with st.spinner("Bezig met het ophalen van informatie..."):
-                response = verkrijg_openai_response(prompt)
+                response = verkrijg_perplexity_response(prompt)
     
             st.markdown("### Resultaten:")
             st.write(response)
