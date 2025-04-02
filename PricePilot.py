@@ -3185,7 +3185,7 @@ with tab5:
         bedrijfsnaam = st.text_input("Naam van het bedrijf:")
         vestigingsplaats = st.text_input("Vestigingsplaats van het bedrijf:")
     
-    if st.button("Zoek Informatie"):
+    if st.button("Stuur scout op pad"):
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
             with st.spinner(f"Even geduld... we scouten {bedrijfsnaam.title()} in {vestigingsplaats.title()} voor je"):
