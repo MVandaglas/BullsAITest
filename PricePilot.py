@@ -3113,7 +3113,7 @@ with tab5:
     def verkrijg_openai_response(prompt):
         try:
             response = openai.chat.completions.create(
-                model="sonar-pro",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": "Je bent een behulpzame assistent."},
                     {"role": "user", "content": prompt},
