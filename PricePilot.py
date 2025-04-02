@@ -3114,13 +3114,19 @@ with tab5:
             }
     
             payload = {
-                "model": "sonar-pro",  
+                "model": "sonar-pro",
                 "messages": [
-                    {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "Je bent een behulpzame zakelijke assistent. Geef volledige bronvermeldingen als URLs wanneer je iets beweert."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt + " Voeg bij elk feit of cijfer een concrete bronvermelding als volledige URL toe. Geen verwijzingen zoals [1] of [2], maar echte klikbare links."
+                    }
                 ]
             }
-    
+                
             response = requests.post("https://api.perplexity.ai/chat/completions", headers=headers, json=payload)
     
             if response.status_code != 200:
