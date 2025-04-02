@@ -3100,7 +3100,7 @@ with tab5:
             f"{bedrijfsnaam} te {vestigingsplaats}, inclusief recente nieuwsartikelen, meest recente omzet, financiële gegevens, "
             f"producten/diensten, markten waarin ze actief zijn, klanten en partners, strategische doelstellingen, aantal werknemers,"
             f"recente overnames of investeringen, eventuele uitdagingen, recente publieke uitingen, of negatieve publiciteit. "
-            f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. "
+            f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Lopende (glas)projecten en benoem de CEO/algemeen directeur/eigenaar en zijn telefoonnummer en e-mailadres. "
             f"Graag samengevat in duidelijke bullets per categorie."
             )
         
