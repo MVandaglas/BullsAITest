@@ -3114,7 +3114,7 @@ with tab5:
             }
     
             payload = {
-                "model": "sonar",  
+                "model": "sonar-pro",  
                 "messages": [
                     {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
                     {"role": "user", "content": prompt}
