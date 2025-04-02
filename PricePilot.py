@@ -3109,11 +3109,11 @@ with tab5:
     def verkrijg_perplexity_response(prompt: str) -> str:
         try:
             # Stel de Perplexity API-instellingen in
-            openai.api_base = "https://api.perplexity.ai"
+            openai.api_base = "https://api.perplexity.ai/chat/completions"
             openai.api_key = pplx_api_key  # API voor Scout
     
             # Verstuur de prompt als chatbericht
-            response = openai.ChatCompletion.create(
+            response = openai.chat.completions.create(
                 model="sonar-pro",  # of gebruik "sonar" als je een sneller model wil
                 messages=[
                     {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
