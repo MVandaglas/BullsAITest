@@ -3113,7 +3113,7 @@ with tab5:
             openai.api_key = "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"  #
     
             # Verstuur de prompt als chatbericht
-            response = openai.Chat.Completions.create(
+            response = openai.chat.completions.create(
                 model="sonar-pro",  # of gebruik "sonar" als je een sneller model wil
                 messages=[
                     {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
@@ -3122,7 +3122,7 @@ with tab5:
             )
     
             return response.choices[0].message.content.strip()
-
+                
         except Exception as e:
             return f"Er is een fout opgetreden: {str(e)}"
         
