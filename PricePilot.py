@@ -3114,7 +3114,7 @@ with tab5:
             }
     
             payload = {
-                "model": "sonar-pro",
+                "model": "sonar",
                 "messages": [
                     {
                         "role": "system",
