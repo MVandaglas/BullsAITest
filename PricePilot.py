@@ -3110,7 +3110,7 @@ with tab5:
         try:
             # Stel de Perplexity API-instellingen in
             openai.api_base = "https://api.perplexity.ai/chat/completions"
-            openai.api_key = pplx_api_key  # API voor Scout
+            openai.api_key = api_key  # API voor Scout
     
             # Verstuur de prompt als chatbericht
             response = openai.chat.completions.create(
