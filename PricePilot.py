@@ -3109,6 +3109,26 @@ with tab5:
             "Doe geen aannames en reageer uitsluitend met het resultaat, zonder begeleidende toelichting."
         )
         return prompt
+
+    def verkrijg_perplexity_response(prompt: str) -> str:
+        try:
+            # Stel de Perplexity API-instellingen in
+            openai.api_base = "https://api.perplexity.ai"
+            openai.api_key = "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"  # <- Vervang dit met je volledige API key
+    
+            # Verstuur de prompt als chatbericht
+            response = openai.ChatCompletion.create(
+                model="sonar-pro",  # of gebruik "sonar" als je een sneller model wil
+                messages=[
+                    {"role": "system", "content": "Je bent een behulpzame zakelijke assistent."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+
+        return response.choices[0].message.content.strip()
+
+    except Exception as e:
+        return f"Er is een fout opgetreden: {str(e)}"
     
     def verkrijg_openai_response(prompt):
         try:
@@ -3166,7 +3186,7 @@ with tab5:
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
             with st.spinner("Bezig met het ophalen van informatie..."):
-                response = verkrijg_openai_response(prompt)
+                response = verkrijg_perplexity_response(prompt)
     
             st.markdown("### Resultaten:")
             st.write(response)
