@@ -3188,7 +3188,7 @@ with tab5:
     if st.button("Stuur scout op pad"):
         if bedrijfsnaam and vestigingsplaats:
             prompt = genereer_prompt(bedrijfsnaam, vestigingsplaats)
-            with st.spinner(f"Even geduld... we scouten {bedrijfsnaam.title()} in {vestigingsplaats.title()} voor je"):
+            with st.spinner(f"De scout is voor je op pad en brengt zo verslag uit over {bedrijfsnaam.title()} uit {vestigingsplaats.title()} voor je."):
                 response = verkrijg_perplexity_response(prompt)
     
             st.markdown("### Resultaten:")
