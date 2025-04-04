@@ -683,8 +683,6 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
-        else:
-            st.write(f"⚠️ Stap 1: Artikelnummer '{lookup_article_number}' gevonden in synonym_dict, maar NIET in article_table.")
 
     # 🔎 Stap 2: Exacte match in synonym_dict[productgroup].keys()
     if lookup_article_number in product_dict.keys():
@@ -701,8 +699,6 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
-        else:
-            st.write(f"⚠️ Stap 2: Artikelnummer '{matched_article_number}' (uit keys) NIET gevonden in article_table.")
 
     # 🔎 Stap 3: Fuzzy match met RapidFuzz
     closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
@@ -723,8 +719,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
-        else:
-
+ 
     # 🔎 Stap 4: Fuzzy match met difflib
     closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
     if closest_matches:
@@ -744,7 +739,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
-        else:
+ 
 
     # ❌ Stap 5: Geen enkele match
     return (
