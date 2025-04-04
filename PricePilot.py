@@ -185,6 +185,14 @@ def detect_productgroup_from_text(text):
     return text  # als geen match, gebruik wat er stond
 
 
+def parse_mapping_input(mapping_input):
+    mapping_dict = {}
+    for line in mapping_input.splitlines():
+        if '=' in line:
+            key, value = line.split('=', 1)
+            mapping_dict[key.strip()] = value.strip()
+    return mapping_dict
+
 # Converteer article_table naar DataFrame
 article_table = pd.DataFrame(article_table)
 
@@ -845,12 +853,35 @@ def preserve_existing_spacers(df):
 # Genereer een mapping van artikelnamen naar artikelnummers
 article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
+#TBV synoniem mapping in UI
+# Stap 1: toon herkende artikelomschrijvingen uit de offerte
+unieke_omschrijvingen = st.session_state.offer_df['Artikelnaam'].dropna().unique().tolist()
+omschrijving_lijstje = '\n'.join(unieke_omschrijvingen)
+
+st.text_area("🔍 Herkende omschrijvingen uit offerte", value=omschrijving_lijstje, height=150, disabled=True)
+
+# Stap 2: handmatige artikelkoppelingen via expander
+with st.expander("✍️ Voeg hier handmatig artikelkoppelingen toe (bijv. HR++ Glas = 5-15-4)", expanded=False):
+    mapping_input = st.text_area(
+        "Elke regel moet het formaat hebben: <omschrijving> = <artikelnummer>",
+        height=150,
+        key="mapping_input_area"
+    )
+
+# Zet om naar dictionary
+mapping_dict = parse_mapping_input(mapping_input)
 
 
-
-def update_offer_data(df):
+def update_offer_data(df, mapping_dict=None):
     for index, row in df.iterrows():
-        st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
+        st.write(f"🔍 [update_offer_data] Artikelnaam: '{row['Artikelnaam']}', Artikelnummer vóór verwerking: '{row['Artikelnummer']}'")
+
+        # ✅ Eerst checken of handmatige mapping van toepassing is
+        if mapping_dict and pd.notna(row['Artikelnaam']):
+            handmatig_artikel = mapping_dict.get(row['Artikelnaam'].strip())
+            if handmatig_artikel:
+                st.write(f"📝 Handmatige mapping toegepast: '{row['Artikelnaam']}' → '{handmatig_artikel}'")
+                df.at[index, 'Artikelnummer'] = handmatig_artikel
 
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
@@ -859,19 +890,12 @@ def update_offer_data(df):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
 
         if pd.notna(row['Artikelnummer']):
-            # ⛔ voorkom dubbele lookups op 1000000 → gebruik originele input indien beschikbaar
-            if row['Artikelnummer'] == '1000000' and row.get('original_article_number'):
-                lookup_value = row['original_article_number']
-            else:
-                lookup_value = row['Artikelnummer']
-
-            # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
                 description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(
-                    lookup_value,
+                    row['Artikelnummer'],
                     current_productgroup=current_pg,
-                    original_article_number=row.get('original_article_number') or lookup_value
+                    original_article_number=row.get('original_article_number') or row['Artikelnummer']
                 )
 
                 st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
@@ -888,7 +912,6 @@ def update_offer_data(df):
                 if fuzzy_match:
                     df.at[index, 'fuzzy_match'] = fuzzy_match
 
-            # 🔄 SAP prijs ophalen
             if st.session_state.customer_number in sap_prices:
                 sap_prijs = sap_prices[st.session_state.customer_number].get(row['Artikelnummer'], None)
                 df.at[index, 'SAP Prijs'] = sap_prijs if sap_prijs else None
@@ -897,6 +920,7 @@ def update_offer_data(df):
 
     df = bereken_prijs_backend(df)
     return df
+
 
 
 
@@ -962,7 +986,7 @@ function(params) {
 
 def save_changes(df):
     st.session_state.offer_df = df
-    st.session_state.offer_df = update_offer_data(st.session_state.offer_df)
+    st.session_state.offer_df = update_offer_data(st.session_state.offer_df, mapping_dict)
     st.session_state.offer_df = bereken_prijs_backend(st.session_state.offer_df)
     st.session_state.offer_df = update_rsp_for_all_rows(st.session_state.offer_df, st.session_state.get('prijsscherpte', ''))
 
@@ -1086,7 +1110,7 @@ with tab1:
         # Werk de sessiestatus bij met de nieuwe data
         st.session_state.offer_df = updated_df
         # Voer alle benodigde berekeningen uit
-        st.session_state.offer_df = update_offer_data(st.session_state.offer_df)
+        st.session_state.offer_df = update_offer_data(st.session_state.offer_df, mapping_dict)
         st.session_state.offer_df = bereken_prijs_backend(st.session_state.offer_df)
 
     
@@ -1096,7 +1120,7 @@ with tab1:
 def update_tabel():
     updated_df = pd.DataFrame(edited_df_response['data'])
     st.session_state.offer_df = updated_df
-    st.session_state.offer_df = update_offer_data(st.session_state.offer_df)
+    st.session_state.offer_df = update_offer_data(st.session_state.offer_df, mapping_dict)
     st.session_state.offer_df = bereken_prijs_backend(st.session_state.offer_df)
 
     new_df = st.session_state.offer_df
@@ -1404,7 +1428,7 @@ def handle_gpt_chat():
             new_df.insert(0, 'Rijnummer', new_df.index + 1)
 
             st.session_state.offer_df = pd.concat([st.session_state.offer_df, new_df], ignore_index=True)
-            st.session_state.offer_df = update_offer_data(st.session_state.offer_df)
+            st.session_state.offer_df = update_offer_data(st.session_state.offer_df, mapping_dict)
             st.session_state.offer_df = update_rsp_for_all_rows(st.session_state.offer_df, prijsscherpte)
             st.session_state["trigger_update"] = True
             st.session_state.offer_df = reset_rijnummers(st.session_state.offer_df)
@@ -2634,7 +2658,7 @@ with tab1:
 
 if 'edited_df' in locals() and not edited_df.equals(st.session_state.offer_df):
     edited_df = edited_df.copy()
-    edited_df = update_offer_data(edited_df)
+    edited_df = update_offer_data(edited_df, mapping_dict)
     st.session_state.offer_df = edited_df
 
 
