@@ -699,7 +699,9 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
 
 
     # 🔎 Stap 3: Fuzzy match met RapidFuzz
-    closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
+    closest_match = process.extractOne(if not isinstance(lookup_article_number, str):
+    lookup_article_number = str(lookup_article_number or "")
+, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
         matched_article_number = product_dict[best_match]
