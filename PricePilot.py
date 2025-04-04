@@ -858,6 +858,9 @@ def update_offer_data(df):
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
 
+        if pd.isna(row.get("Spacer")) or row["Spacer"] == "":
+            df.at[index, "Spacer"] = determine_spacer(row.get("Artikelnaam") or "")
+
         if pd.notna(row['Artikelnummer']):
             # ⛔ voorkom dubbele lookups op 1000000 → gebruik originele input indien beschikbaar
             if row['Artikelnummer'] == '1000000' and row.get('original_article_number'):
