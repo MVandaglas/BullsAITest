@@ -845,6 +845,9 @@ def preserve_existing_spacers(df):
 # Genereer een mapping van artikelnamen naar artikelnummers
 article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
+st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
+
+
 def update_offer_data(df):
     for index, row in df.iterrows():
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
