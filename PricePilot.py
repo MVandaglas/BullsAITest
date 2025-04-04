@@ -865,7 +865,7 @@ def update_offer_data(df):
             
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg)
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg, original_article_number=row.get('original_article_number') or lookup_value)
                 
                 if description:
                     df.at[index, 'Artikelnaam'] = description
