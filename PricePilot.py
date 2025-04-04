@@ -855,17 +855,22 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
 #TBV synoniem mapping in UI
 # Stap 1: toon herkende artikelomschrijvingen uit de offerte
-unieke_omschrijvingen = st.session_state.offer_df['Artikelnaam'].dropna().unique().tolist()
-omschrijving_lijstje = '\n'.join(unieke_omschrijvingen)
+with st.sidebar.expander("🔧 Handmatige artikelkoppelingen", expanded=True):
+    unieke_omschrijvingen = st.session_state.offer_df['Artikelnaam'].dropna().unique().tolist()
+    omschrijving_lijstje = '\n'.join(unieke_omschrijvingen)
 
-st.text_area("🔍 Herkende omschrijvingen uit offerte", value=omschrijving_lijstje, height=150, disabled=True)
+    st.markdown("**🔍 Herkende omschrijvingen uit offerte:**")
+    st.text_area(
+        "Alle unieke omschrijvingen uit de offerte:",
+        value=omschrijving_lijstje,
+        height=120,
+        disabled=True
+    )
 
-# Stap 2: handmatige artikelkoppelingen via expander
-with st.sidebar.expander("✍️ Voeg handmatige artikelkoppelingen toe", expanded=True):
-    st.markdown("**Formaat:** `Omschrijving = Artikelnummer` (één per regel)")
+    st.markdown("**✍️ Voeg hieronder je koppelingen toe (één per regel):**<br>_Formaat: `Omschrijving = Artikelnummer`_", unsafe_allow_html=True)
     mapping_input = st.text_area(
-        "Bijv:\nHR++ Glas letselveilig = 33.1-15-33.1",
-        height=100,
+        "Bijvoorbeeld:\n HR++ glas letselveilig = 33.1-15-33.1",
+        height=120,
         key="mapping_input_area"
     )
 
