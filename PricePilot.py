@@ -851,18 +851,27 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 def update_offer_data(df):
     for index, row in df.iterrows():
         st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
-        
+
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
-        
+
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
 
         if pd.notna(row['Artikelnummer']):
+            # ⛔ voorkom dubbele lookups op 1000000 → gebruik originele input indien beschikbaar
+            if row['Artikelnummer'] == '1000000' and row.get('original_article_number'):
+                lookup_value = row['original_article_number']
+            else:
+                lookup_value = row['Artikelnummer']
+
+            # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
                 description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(
-                    row['Artikelnummer'], current_productgroup=current_pg
+                    lookup_value,
+                    current_productgroup=current_pg,
+                    original_article_number=row.get('original_article_number') or lookup_value
                 )
 
                 st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
@@ -879,6 +888,7 @@ def update_offer_data(df):
                 if fuzzy_match:
                     df.at[index, 'fuzzy_match'] = fuzzy_match
 
+            # 🔄 SAP prijs ophalen
             if st.session_state.customer_number in sap_prices:
                 sap_prijs = sap_prices[st.session_state.customer_number].get(row['Artikelnummer'], None)
                 df.at[index, 'SAP Prijs'] = sap_prijs if sap_prijs else None
