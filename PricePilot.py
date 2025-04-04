@@ -850,43 +850,61 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
 def update_offer_data(df):
     for index, row in df.iterrows():
+        st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
+
+        # Stap 1: Oppervlakteberekening
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
-            
+
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
-            
+
+        # Stap 2: Artikelinformatie ophalen (alleen als Artikelnummer aanwezig is)
         if pd.notna(row['Artikelnummer']):
-            # ⛔ voorkom dubbele lookups op 1000000 → gebruik originele input indien beschikbaar
+
+            # Voorkom dat we opnieuw op fallback '1000000' zoeken → pak dan originele invoer
             if row['Artikelnummer'] == '1000000' and row.get('original_article_number'):
                 lookup_value = row['original_article_number']
             else:
                 lookup_value = row['Artikelnummer']
-            
+
+            # Alleen lookup als 'Source' leeg of AI/herkenning is
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg, original_article_number=row.get('original_article_number') or lookup_value)
                 
-                if description:
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(
+                    lookup_value,
+                    current_productgroup=current_pg,
+                    original_article_number=row.get('original_article_number') or lookup_value
+                )
+
+                st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
+
+                # Alleen overschrijven als artikelnaam leeg is of fallback is
+                if description and (pd.isna(row.get('Artikelnaam')) or row['Artikelnaam'] == '1000000'):
                     df.at[index, 'Artikelnaam'] = description
+
                 if min_price is not None and max_price is not None:
                     df.at[index, 'Min_prijs'] = min_price
                     df.at[index, 'Max_prijs'] = max_price
-                if source:  # Alleen Source bijwerken als deze leeg is
+
+                if source:
                     df.at[index, 'Source'] = source
                 if original_article_number:
                     df.at[index, 'original_article_number'] = original_article_number
                 if fuzzy_match:
                     df.at[index, 'fuzzy_match'] = fuzzy_match
-            
-            # Update SAP Prijs
+
+            # Stap 3: SAP Prijs ophalen
             if st.session_state.customer_number in sap_prices:
                 sap_prijs = sap_prices[st.session_state.customer_number].get(row['Artikelnummer'], None)
                 df.at[index, 'SAP Prijs'] = sap_prijs if sap_prijs else None
             else:
                 df.at[index, 'SAP Prijs'] = None
+
     df = bereken_prijs_backend(df)
     return df
+
 
 
 # Functie om de RSP voor alle regels te updaten
