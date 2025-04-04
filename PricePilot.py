@@ -854,13 +854,17 @@ def update_offer_data(df):
         
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
+        
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
+
         if pd.notna(row['Artikelnummer']):
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg)
-                
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(
+                    row['Artikelnummer'], current_productgroup=current_pg
+                )
+
                 st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
 
                 if description:
@@ -883,6 +887,7 @@ def update_offer_data(df):
 
     df = bereken_prijs_backend(df)
     return df
+
 
 
 
