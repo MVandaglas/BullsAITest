@@ -653,7 +653,8 @@ def replace_synonyms(input_text, synonyms):
     return input_text
 
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
-            
+    raw_input_value = lookup_article_number  # originele user-invoer bewaren
+
 
     product_dict = synonym_dict.get(current_productgroup, {})
 
@@ -744,12 +745,12 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
     # ❌ Stap 5: Geen match
     st.write(f"❌ Geen enkele match gevonden voor: {lookup_article_number} in productgroep {current_productgroup}")
     return (
-        original_article_number,
+        raw_input_value,
         None,
         None,
         '1000000',
         source if source else "niet gevonden",
-        original_article_number,
+        raw_input_value,
         None
     )
 
