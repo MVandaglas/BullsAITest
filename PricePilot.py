@@ -2177,13 +2177,13 @@ def extract_data_with_gpt(prompt):
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": (
-                    "Je bent een geavanceerde extractietool die glassamenstellingen uit een bestekformulier extraheert en deze omzet naar een tekstuele lijst.\n"
+                    "Neem even diep adem en luister aandachtig. Je bent een geavanceerde extractietool die glassamenstellingen uit een bestekformulier extraheert en deze omzet naar een tekstuele lijst.\n"
                     "Formatteer de output volgens het volgende formaat:\n"
                     "[aantal]x {[omschrijving]} [breedte]x[hoogte] [Warmedge] \n"
                     "Verwijder eventuele spaties uit de omschrijving, voorbeelden van omschrijvingen zijn '4-15-4', '8-18A-44.2', '33/1-33/1' of '5-5'.\n"
                     "Warmedge betekent een zwarte, of warmedge spacer/afstandhouder bij isolatieglas. Het is niet standaard of basic. Als van toepassing, eindig de regel met 'WE', geen warmedge, plaats dan geen extra tekst.\n"
                     "Mocht een regel geen omschrijving hebben, neem je de omschrijving van de voorgaande regel.\n"
-                    "Wanneer de productgroep genoemd wordt, bijv. 'Eclaz One', 'SS Zero', 'Alfa', 'Zonwerend' 'SKN', plaats deze dan bóven de regel tussen **, bijv. *Eclaz One*. Alle volgende regels zullen dan onder die productgroep vallen.\n"
+                    "Het volgende is enorm belangrijk. Wanneer de productgroep genoemd wordt, bijv. 'energy', 'eclaz one', 'ss zero', 'Alfa', 'zonwerend' 'SKN', plaats deze dan bóven de regel tussen **, bijv. *Eclaz One*. Alle volgende regels zullen dan onder die productgroep vallen.\n"
                     "Houd je strikt aan dit formaat zonder extra uitleg, JSON, Markdown of aanvullende tekst."
                 )},
                 {"role": "user", "content": prompt}
