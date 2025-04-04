@@ -744,7 +744,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
     # ❌ Stap 5: Geen match
     st.write(f"❌ Geen enkele match gevonden voor: {lookup_article_number} in productgroep {current_productgroup}")
     return (
-        None,
+        best_match,
         None,
         None,
         '1000000',
