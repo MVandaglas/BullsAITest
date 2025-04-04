@@ -855,7 +855,7 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
 #TBV synoniem mapping in UI
 # Stap 1: toon herkende artikelomschrijvingen uit de offerte
-with st.sidebar.expander("🔧 Handmatige artikelkoppelingen", expanded=True):
+with st.sidebar.expander("🔧 Handmatige artikelkoppelingen", expanded=False):
     unieke_omschrijvingen = st.session_state.offer_df['Artikelnaam'].dropna().unique().tolist()
     omschrijving_lijstje = '\n'.join(unieke_omschrijvingen)
 
