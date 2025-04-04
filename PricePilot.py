@@ -810,7 +810,7 @@ def determine_spacer(term, default_value="15 - alu"):
 
             # Controleer of de waarde binnen de juiste range ligt
             if 3 < spacer_value < 30:
-                if any(keyword in term.lower() for keyword in ["we", "warmedge", "warm edge"]):
+                if any(keyword in term.lower() for keyword in ["we", "warmedge", "warm edge", "warme-edge", "warm-e"]):
                     result = f"{spacer_value} - warm edge"
                 else:
                     result = f"{spacer_value} - alu"
@@ -869,6 +869,10 @@ def update_offer_data(df):
                 # Alleen overschrijven als artikelnaam leeg is of fallback is
                 if description and (pd.isna(row.get('Artikelnaam')) or row['Artikelnaam'] == '1000000'):
                     df.at[index, 'Artikelnaam'] = description
+
+                # Spacer aanvullen op basis van artikelnaam, maar alleen als deze leeg is
+                if pd.isna(row.get("Spacer")) or row["Spacer"] == "":
+                    df.at[index, "Spacer"] = determine_spacer(row.get("Artikelnaam", ""))
 
                 if min_price is not None and max_price is not None:
                     df.at[index, 'Min_prijs'] = min_price
