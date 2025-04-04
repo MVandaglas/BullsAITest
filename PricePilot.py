@@ -3125,7 +3125,7 @@ with tab5:
             f"Neem diep adem, en geef mij een zeer gedetailleerd overzicht van alle beschikbare zakelijke informatie over "
             f"{bedrijfsnaam} te {vestigingsplaats}. Belangrijk vind ik: omzet en andere financiële gegevens, "
             f"producten/diensten, markten waarin ze actief zijn, strategische doelstellingen, aantal werknemers/fte (probeer hier met name via linkedin of kvk te zoeken)."
-            f"Check ook altijd www.acm.com op recente overnames of investeringen. "
+            f"Check ook op recente overnames of investeringen. "
             f"Focus op informatie die nuttig is voor een verkoopbezoek of voor opname in een CRM-systeem. Benoem de CEO/algemeen directeur/eigenaar en zijn telefoonnummer en e-mailadres. "
             f"Graag samengevat in duidelijke bullets per categorie."
             )
