@@ -3155,6 +3155,7 @@ with tab5:
                             "[2] https://voorbeeld2.nl\n"
                             "[3] https://voorbeeld3.nl\n"
                             "Zorg ervoor dat de nummers overeenkomen met de verwijzingen in de tekst."
+                            "Noem het stuk: 'Scoutverslag van {bedrijfsnaam}'"
                         )
                     }
                 ]
