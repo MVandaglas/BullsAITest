@@ -663,7 +663,6 @@ def replace_synonyms(input_text, synonyms):
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
     # ✅ Bewaar originele inputwaarde van gebruiker
     inputwaarde_gebruiker = original_article_number or lookup_article_number
-    st.write(f"🛠️ [DEBUG] Originele invoer gebruiker (inputwaarde_gebruiker): '{inputwaarde_gebruiker}'")
 
     product_dict = synonym_dict.get(current_productgroup, {})
 
@@ -675,7 +674,6 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
         filtered_articles = article_table[article_table['Material'].astype(str) == str(lookup_article_number)]
 
         if not filtered_articles.empty:
-            st.write(f"✅ [DEBUG] Stap 1 match: artikelnummer '{lookup_article_number}' komt voor in values.")
             return (
                 filtered_articles.iloc[0]['Description'],
                 filtered_articles.iloc[0]['Min_prijs'],
@@ -694,7 +692,6 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
 
         if not filtered_articles.empty:
-            st.write(f"✅ [DEBUG] Stap 2 match: '{lookup_article_number}' als key matched met '{matched_article_number}'.")
             return (
                 filtered_articles.iloc[0]['Description'],
                 filtered_articles.iloc[0]['Min_prijs'],
@@ -727,7 +724,6 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 best_match
             )
         else:
-            st.write(f"⚠️ Stap 3: Fuzzy RapidFuzz artikel '{matched_article_number}' NIET in article_table.")
 
     # 🔎 Stap 4: Fuzzy match met difflib
     closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
@@ -749,12 +745,8 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 best_match
             )
         else:
-            st.write(f"⚠️ Stap 4: Fuzzy difflib artikel '{matched_article_number}' NIET in article_table.")
 
     # ❌ Stap 5: Geen enkele match
-    st.write(f"❌ [DEBUG] GEEN match gevonden voor: '{lookup_article_number}' in productgroep '{current_productgroup}'")
-    st.write(f"📦 [DEBUG] Return bij GEEN match → Artikelnaam: '{inputwaarde_gebruiker}', Artikelnummer: '1000000'")
-
     return (
         inputwaarde_gebruiker,  # ← Dit is de originele input van de gebruiker
         None,
@@ -880,7 +872,6 @@ mapping_dict = parse_mapping_input(mapping_input)
 
 def update_offer_data(df, mapping_dict=None):
     for index, row in df.iterrows():
-        st.write(f"🔍 [update_offer_data] Artikelnaam: '{row['Artikelnaam']}', Artikelnummer vóór verwerking: '{row['Artikelnummer']}'")
 
         # ✅ Eerst checken of handmatige mapping van toepassing is
         if mapping_dict and pd.notna(row['Artikelnaam']):
