@@ -845,10 +845,11 @@ def preserve_existing_spacers(df):
 # Genereer een mapping van artikelnamen naar artikelnummers
 article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
-st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
+
 
 
 def update_offer_data(df):
+    st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
     for index, row in df.iterrows():
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
