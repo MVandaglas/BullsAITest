@@ -2150,9 +2150,10 @@ def extract_data_with_gpt(prompt):
                     "Formatteer de output volgens het volgende formaat:\n"
                     "[aantal]x {[omschrijving]} [breedte]x[hoogte] [Warmedge] \n"
                     "Verwijder eventuele spaties uit de omschrijving, voorbeelden van omschrijvingen zijn '4-15-4', '8-18A-44.2', '33/1-33/1' of '5-5'.\n"
-                    "Warmedge betekent een zwarte, of warmedge spacer/afstandhouder bij isolatieglas. Het is niet standaard of basic. Als van toepassing, eindig de regel met 'WE', geen warmedge, plaats dan geen extra tekst.\n"
+                    "Warmedge betekent een zwarte, of warmedge spacer/afstandhouder bij isolatieglas. Je kunt het herkennen aan Warm-E, warmedge, zwarte spacer, zwarte afstandhouder etc. Het is niet standaard of basic. Als van toepassing, eindig de regel met 'WE'. Geen warmedge, plaats dan geen extra tekst.\n"
                     "Mocht een regel geen omschrijving hebben, neem je de omschrijving van de voorgaande regel.\n"
-                    "Wanneer de productgroep genoemd wordt, bijv. 'Eclaz One', 'SS Zero', 'Alfa', 'Zonwerend' 'SKN', plaats deze dan bóven de regel tussen **, bijv. *Eclaz One*. Alle volgende regels zullen dan onder die productgroep vallen.\n"
+                    "Het volgende is enorm belangrijk: Wanneer de productgroep genoemd wordt, bijv. 'Eclaz One', 'SS Zero', 'Alfa', 'Zonwerend' 'SKN', plaats deze dan bóven de regel tussen **, bijv. *Eclaz One*. Alle volgende regels zullen dan onder die productgroep vallen.\n"
+                    "De productgroep kan na het artikelnummer worden genoemd, bovenaan als kop, of iets verderop tussen kenmerken van de samenstelling: bijv. 6#-15-4 ZTA: 40%  U:1.0 W/m2k | Energy | Waarbij energy dan de productgroep is.\n"
                     "Houd je strikt aan dit formaat zonder extra uitleg, JSON, Markdown of aanvullende tekst."
                 )},
                 {"role": "user", "content": prompt}
