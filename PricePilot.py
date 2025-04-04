@@ -657,7 +657,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
 
 
     product_dict = synonym_dict.get(current_productgroup, {})
-    st.write(f"📦 Aantal synoniemen in productgroep '{current_productgroup}': {len(product_dict)}")
+
 
     if original_article_number is None:
         original_article_number = lookup_article_number  
