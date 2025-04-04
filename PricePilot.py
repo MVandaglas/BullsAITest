@@ -861,10 +861,11 @@ omschrijving_lijstje = '\n'.join(unieke_omschrijvingen)
 st.text_area("🔍 Herkende omschrijvingen uit offerte", value=omschrijving_lijstje, height=150, disabled=True)
 
 # Stap 2: handmatige artikelkoppelingen via expander
-with st.expander("✍️ Voeg hier handmatig artikelkoppelingen toe (bijv. HR++ Glas = 5-15-4)", expanded=False):
+with st.sidebar.expander("✍️ Voeg handmatige artikelkoppelingen toe", expanded=True):
+    st.markdown("**Formaat:** `Omschrijving = Artikelnummer` (één per regel)")
     mapping_input = st.text_area(
-        "Elke regel moet het formaat hebben: <omschrijving> = <artikelnummer>",
-        height=150,
+        "Bijv:\nHR++ Glas letselveilig = 33.1-15-33.1",
+        height=100,
         key="mapping_input_area"
     )
 
