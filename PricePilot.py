@@ -3148,7 +3148,7 @@ with tab5:
                             "[1] https://voorbeeld1.nl\n"
                             "[2] https://voorbeeld2.nl\n"
                             "[3] https://voorbeeld3.nl\n"
-                            "Zorg ervoor dat de nummers overeenkomen met de verwijzingen in de tekst. Gebruik niet Rocketreach.co als bron, wel bijvoorbeeld LinkedIn."
+                            "Zorg ervoor dat de nummers overeenkomen met de verwijzingen in de tekst. Zoek sowieso op LinkedIn naar het bedrijf en personen die er werken."
                         )
                     }
                 ]
