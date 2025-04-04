@@ -653,21 +653,23 @@ def replace_synonyms(input_text, synonyms):
     return input_text
 
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
-    # ✅ Bewaar originele inputwaarde van gebruiker
-    inputwaarde_gebruiker = original_article_number or lookup_article_number
-    st.write(f"🛠️ [DEBUG] Originele invoer gebruiker (inputwaarde_gebruiker): '{inputwaarde_gebruiker}'")
+            
+    st.write(f"🔍 Start zoeken naar: {lookup_article_number} in productgroep: {current_productgroup}")
 
     product_dict = synonym_dict.get(current_productgroup, {})
+    st.write(f"📦 Aantal synoniemen in productgroep '{current_productgroup}': {len(product_dict)}")
 
     if original_article_number is None:
-        original_article_number = lookup_article_number
+        original_article_number = lookup_article_number  
 
     # 🔎 Stap 1: Exact match in synonym_dict[productgroup].values()
     if lookup_article_number in product_dict.values():
+        st.write(f"✅ Stap 1: Exact match gevonden in VALUES van '{current_productgroup}': {lookup_article_number}")
+        
         filtered_articles = article_table[article_table['Material'].astype(str) == str(lookup_article_number)]
-
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {lookup_article_number}")
+        
         if not filtered_articles.empty:
-            st.write(f"✅ [DEBUG] Stap 1 match: artikelnummer '{lookup_article_number}' komt voor in values.")
             return (
                 filtered_articles.iloc[0]['Description'],
                 filtered_articles.iloc[0]['Min_prijs'],
@@ -678,15 +680,17 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 None
             )
         else:
-            st.write(f"⚠️ Stap 1: Artikelnummer '{lookup_article_number}' gevonden in synonym_dict, maar NIET in article_table.")
+            st.write(f"⚠️ Artikelnummer {lookup_article_number} gevonden in synonym_dict, maar NIET in article_table.")
 
     # 🔎 Stap 2: Exacte match in synonym_dict[productgroup].keys()
     if lookup_article_number in product_dict.keys():
         matched_article_number = product_dict[lookup_article_number]
+        st.write(f"✅ Stap 2: Exact match gevonden in KEYS: {lookup_article_number} → {matched_article_number}")
+
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {matched_article_number}")
 
         if not filtered_articles.empty:
-            st.write(f"✅ [DEBUG] Stap 2 match: '{lookup_article_number}' als key matched met '{matched_article_number}'.")
             return (
                 filtered_articles.iloc[0]['Description'],
                 filtered_articles.iloc[0]['Min_prijs'],
@@ -697,16 +701,17 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 None
             )
         else:
-            st.write(f"⚠️ Stap 2: Artikelnummer '{matched_article_number}' (uit keys) NIET gevonden in article_table.")
+            st.write(f"⚠️ Artikelnummer {matched_article_number} (uit keys) NIET gevonden in article_table.")
 
     # 🔎 Stap 3: Fuzzy match met RapidFuzz
     closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
         matched_article_number = product_dict[best_match]
-        st.write(f"🧠 [DEBUG] Stap 3: Fuzzy match RapidFuzz: '{lookup_article_number}' ≈ '{best_match}' → '{matched_article_number}'")
+        st.write(f"🧠 Stap 3: Fuzzy match (RapidFuzz) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
 
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor fuzzy materiaal: {matched_article_number}")
 
         if not filtered_articles.empty:
             return (
@@ -719,16 +724,17 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 best_match
             )
         else:
-            st.write(f"⚠️ Stap 3: Fuzzy RapidFuzz artikel '{matched_article_number}' NIET in article_table.")
+            st.write(f"⚠️ Fuzzy gevonden materiaal {matched_article_number} NIET in article_table.")
 
     # 🔎 Stap 4: Fuzzy match met difflib
     closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
     if closest_matches:
         best_match = closest_matches[0]
         matched_article_number = product_dict[best_match]
-        st.write(f"🧠 [DEBUG] Stap 4: Fuzzy match difflib: '{lookup_article_number}' ≈ '{best_match}' → '{matched_article_number}'")
+        st.write(f"🧠 Stap 4: Fuzzy match (difflib) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
 
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
+        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor difflib materiaal: {matched_article_number}")
 
         if not filtered_articles.empty:
             return (
@@ -741,22 +747,19 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 best_match
             )
         else:
-            st.write(f"⚠️ Stap 4: Fuzzy difflib artikel '{matched_article_number}' NIET in article_table.")
+            st.write(f"⚠️ Difflib gevonden materiaal {matched_article_number} NIET in article_table.")
 
-    # ❌ Stap 5: Geen enkele match
-    st.write(f"❌ [DEBUG] GEEN match gevonden voor: '{lookup_article_number}' in productgroep '{current_productgroup}'")
-    st.write(f"📦 [DEBUG] Return bij GEEN match → Artikelnaam: '{inputwaarde_gebruiker}', Artikelnummer: '1000000'")
-
+    # ❌ Stap 5: Geen match
+    st.write(f"❌ Geen enkele match gevonden voor: {lookup_article_number} in productgroep {current_productgroup}")
     return (
-        inputwaarde_gebruiker,  # ← Dit is de originele input van de gebruiker
+        lookup_article_number,
         None,
         None,
         '1000000',
         source if source else "niet gevonden",
-        inputwaarde_gebruiker,
+        original_article_number,
         None
     )
-
 
 
 
@@ -845,63 +848,37 @@ def preserve_existing_spacers(df):
 # Genereer een mapping van artikelnamen naar artikelnummers
 article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
-
-
-
 def update_offer_data(df):
     for index, row in df.iterrows():
-        st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
-
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
-
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
-
-        if pd.isna(row.get("Spacer")) or row["Spacer"] == "":
-            df.at[index, "Spacer"] = determine_spacer(row.get("Artikelnaam") or "")
-
         if pd.notna(row['Artikelnummer']):
-            # ⛔ voorkom dubbele lookups op 1000000 → gebruik originele input indien beschikbaar
-            if row['Artikelnummer'] == '1000000' and row.get('original_article_number'):
-                lookup_value = row['original_article_number']
-            else:
-                lookup_value = row['Artikelnummer']
-
             # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
-                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(
-                    lookup_value,
-                    current_productgroup=current_pg,
-                    original_article_number=row.get('original_article_number') or lookup_value
-                )
-
-                st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
-
+                description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg)
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
                     df.at[index, 'Min_prijs'] = min_price
                     df.at[index, 'Max_prijs'] = max_price
-                if source:
+                if source:  # Alleen Source bijwerken als deze leeg is
                     df.at[index, 'Source'] = source
                 if original_article_number:
                     df.at[index, 'original_article_number'] = original_article_number
                 if fuzzy_match:
                     df.at[index, 'fuzzy_match'] = fuzzy_match
-
-            # 🔄 SAP prijs ophalen
+            
+            # Update SAP Prijs
             if st.session_state.customer_number in sap_prices:
                 sap_prijs = sap_prices[st.session_state.customer_number].get(row['Artikelnummer'], None)
                 df.at[index, 'SAP Prijs'] = sap_prijs if sap_prijs else None
             else:
                 df.at[index, 'SAP Prijs'] = None
-
     df = bereken_prijs_backend(df)
     return df
-
-
 
 
 # Functie om de RSP voor alle regels te updaten
@@ -3151,7 +3128,7 @@ with tab5:
                             "[1] https://voorbeeld1.nl\n"
                             "[2] https://voorbeeld2.nl\n"
                             "[3] https://voorbeeld3.nl\n"
-                            "Zorg ervoor dat de nummers overeenkomen met de verwijzingen in de tekst. Zoek sowieso op LinkedIn naar het bedrijf en personen die er werken."
+                            "Zorg ervoor dat de nummers overeenkomen met de verwijzingen in de tekst."
                         )
                     }
                 ]
