@@ -849,37 +849,41 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
 
 def update_offer_data(df):
-    st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
     for index, row in df.iterrows():
+        st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
+        
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
         if pd.notna(row['Artikelnummer']):
-            # Controleer of Source al is gevuld
             if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
                 description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(row['Artikelnummer'], current_productgroup=current_pg)
+                
+                st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
+
                 if description:
                     df.at[index, 'Artikelnaam'] = description
                 if min_price is not None and max_price is not None:
                     df.at[index, 'Min_prijs'] = min_price
                     df.at[index, 'Max_prijs'] = max_price
-                if source:  # Alleen Source bijwerken als deze leeg is
+                if source:
                     df.at[index, 'Source'] = source
                 if original_article_number:
                     df.at[index, 'original_article_number'] = original_article_number
                 if fuzzy_match:
                     df.at[index, 'fuzzy_match'] = fuzzy_match
-            
-            # Update SAP Prijs
+
             if st.session_state.customer_number in sap_prices:
                 sap_prijs = sap_prices[st.session_state.customer_number].get(row['Artikelnummer'], None)
                 df.at[index, 'SAP Prijs'] = sap_prijs if sap_prijs else None
             else:
                 df.at[index, 'SAP Prijs'] = None
+
     df = bereken_prijs_backend(df)
     return df
+
 
 
 # Functie om de RSP voor alle regels te updaten
