@@ -654,7 +654,7 @@ def replace_synonyms(input_text, synonyms):
 
 def find_article_details(lookup_article_number, current_productgroup="Alfa", source=None, original_article_number=None):
             
-    st.write(f"🔍 Start zoeken naar: {lookup_article_number} in productgroep: {current_productgroup}")
+
 
     product_dict = synonym_dict.get(current_productgroup, {})
     st.write(f"📦 Aantal synoniemen in productgroep '{current_productgroup}': {len(product_dict)}")
@@ -664,7 +664,7 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
 
     # 🔎 Stap 1: Exact match in synonym_dict[productgroup].values()
     if lookup_article_number in product_dict.values():
-        st.write(f"✅ Stap 1: Exact match gevonden in VALUES van '{current_productgroup}': {lookup_article_number}")
+
         
         filtered_articles = article_table[article_table['Material'].astype(str) == str(lookup_article_number)]
         st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {lookup_article_number}")
@@ -679,16 +679,12 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
-        else:
-            st.write(f"⚠️ Artikelnummer {lookup_article_number} gevonden in synonym_dict, maar NIET in article_table.")
+
 
     # 🔎 Stap 2: Exacte match in synonym_dict[productgroup].keys()
     if lookup_article_number in product_dict.keys():
         matched_article_number = product_dict[lookup_article_number]
-        st.write(f"✅ Stap 2: Exact match gevonden in KEYS: {lookup_article_number} → {matched_article_number}")
-
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor materiaal: {matched_article_number}")
 
         if not filtered_articles.empty:
             return (
@@ -700,18 +696,16 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 None
             )
-        else:
-            st.write(f"⚠️ Artikelnummer {matched_article_number} (uit keys) NIET gevonden in article_table.")
+
 
     # 🔎 Stap 3: Fuzzy match met RapidFuzz
     closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
         matched_article_number = product_dict[best_match]
-        st.write(f"🧠 Stap 3: Fuzzy match (RapidFuzz) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
+
 
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor fuzzy materiaal: {matched_article_number}")
 
         if not filtered_articles.empty:
             return (
@@ -723,18 +717,14 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
-        else:
-            st.write(f"⚠️ Fuzzy gevonden materiaal {matched_article_number} NIET in article_table.")
-
+  
     # 🔎 Stap 4: Fuzzy match met difflib
     closest_matches = difflib.get_close_matches(lookup_article_number, product_dict.keys(), n=1, cutoff=cutoff_value)
     if closest_matches:
         best_match = closest_matches[0]
         matched_article_number = product_dict[best_match]
-        st.write(f"🧠 Stap 4: Fuzzy match (difflib) gevonden: {lookup_article_number} ≈ {best_match} → {matched_article_number}")
-
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
-        st.write(f"🔍 Gevonden {len(filtered_articles)} rijen in article_table voor difflib materiaal: {matched_article_number}")
+
 
         if not filtered_articles.empty:
             return (
@@ -746,11 +736,9 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
                 original_article_number,
                 best_match
             )
-        else:
-            st.write(f"⚠️ Difflib gevonden materiaal {matched_article_number} NIET in article_table.")
+
 
     # ❌ Stap 5: Geen match
-    st.write(f"❌ Geen enkele match gevonden voor: {lookup_article_number} in productgroep {current_productgroup}")
     return (
         lookup_article_number,
         None,
@@ -850,7 +838,6 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
 def update_offer_data(df):
     for index, row in df.iterrows():
-        st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
 
         # Stap 1: Oppervlakteberekening
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
@@ -878,7 +865,6 @@ def update_offer_data(df):
                     original_article_number=row.get('original_article_number') or lookup_value
                 )
 
-                st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
 
                 # Alleen overschrijven als artikelnaam leeg is of fallback is
                 if description and (pd.isna(row.get('Artikelnaam')) or row['Artikelnaam'] == '1000000'):
@@ -1835,17 +1821,11 @@ def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
             df_table = pd.DataFrame(first_table[1:], columns=first_table[0])  # Eerste rij als header gebruiken
             
             # **Debugging Stap**: Controleer of er duplicate indexwaarden zijn
-            st.write("📌 **Debugging: Inhoud van df_table vóór index reset**")
-            st.write(df_table)
 
             if df_table.index.duplicated().any():
                 st.error("⚠ Waarschuwing: Dubbele indexen gedetecteerd in de tabel!")
                 df_table = df_table.reset_index(drop=True)  # Fix index probleem
             
-            st.write("📌 **Debugging: DataFrame na index reset**")
-            st.write(df_table)
-
-            st.write("**Voorbeeld van de eerste gedetecteerde tabel:**")
             st.dataframe(df_table)  # Toon de tabel in de UI
             return df_table  # Return de tabel als dataframe
         else:
@@ -1871,7 +1851,7 @@ def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
                     # **Controleer of de respons een geldige DataFrame is**
                     if isinstance(relevant_data, pd.DataFrame) and not relevant_data.empty:
                         st.success("✅ AI-extractie voltooid!")
-                        st.write("📌 **Data geëxtraheerd via AI:**")
+
                         st.dataframe(relevant_data)
                         return relevant_data  # Direct GPT-resultaat retourneren
                     else:
@@ -1879,7 +1859,7 @@ def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
                         return pd.DataFrame()  # Voorkom crashes door een lege DataFrame terug te geven
                     
                     st.success("✅ AI-extractie voltooid!")
-                    st.write("📌 **Data geëxtraheerd via AI:**")
+
                     st.dataframe(relevant_data)
                     return relevant_data  # Direct GPT-resultaat retourneren
 
@@ -1959,8 +1939,8 @@ def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
                     df = df.drop(df.index[0])
                 
                 # **Debugging Stap**: Controleer of de index uniek is
-                st.write("📌 **Debugging: Inhoud van df vóór index reset**")
-                st.write(df)
+
+
 
                 if not df.index.is_unique:
                     st.error("⚠ Waarschuwing: Niet-unieke indexwaarden gevonden vóór reset. Fix index...")
@@ -1975,8 +1955,7 @@ def extract_pdf_to_dataframe(pdf_reader, use_gpt_extraction):
                     st.write("Huidige indexstatus:", df.index)
 
                 # Extra: Print de kolommen en rijen om te checken of data correct is
-                st.write("📌 **Debugging: DataFrame na index reset**")
-                st.write(df)
+
 
                 df.columns = df.columns.str.lower()
     
