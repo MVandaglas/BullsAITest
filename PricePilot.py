@@ -698,22 +698,11 @@ def find_article_details(lookup_article_number, current_productgroup="Alfa", sou
             )
 
 
-    # 🔒 Zorg dat lookup_article_number een string is
-    if not isinstance(lookup_article_number, str):
-        lookup_article_number = str(lookup_article_number or "")
-    
     # 🔎 Stap 3: Fuzzy match met RapidFuzz
-    closest_match = process.extractOne(
-        lookup_article_number,
-        product_dict.keys(),
-        scorer=fuzz.ratio,
-        score_cutoff=cutoff_value * 100
-    )
-    
+    closest_match = process.extractOne(lookup_article_number, product_dict.keys(), scorer=fuzz.ratio, score_cutoff=cutoff_value * 100)
     if closest_match:
         best_match = closest_match[0]
         matched_article_number = product_dict[best_match]
-
 
 
         filtered_articles = article_table[article_table['Material'].astype(str) == str(matched_article_number)]
@@ -821,7 +810,7 @@ def determine_spacer(term, default_value="15 - alu"):
 
             # Controleer of de waarde binnen de juiste range ligt
             if 3 < spacer_value < 30:
-                if any(keyword in term.lower() for keyword in ["we", "warmedge", "warm edge", "warme-edge", "warm-e"]):
+                if any(keyword in term.lower() for keyword in ["we", "warmedge", "warm edge"]):
                     result = f"{spacer_value} - warm edge"
                 else:
                     result = f"{spacer_value} - alu"
@@ -850,33 +839,41 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 def update_offer_data(df):
     for index, row in df.iterrows():
 
-        # Oppervlakteberekening
+        # Stap 1: Oppervlakteberekening
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
             df.at[index, 'M2 p/s'] = calculate_m2_per_piece(row['Breedte'], row['Hoogte'])
 
         if pd.notna(row['Aantal']) and pd.notna(df.at[index, 'M2 p/s']):
             df.at[index, 'M2 totaal'] = float(row['Aantal']) * float(str(df.at[index, 'M2 p/s']).split()[0].replace(',', '.'))
 
-        # Artikelinformatie ophalen
+        # Stap 2: Artikelinformatie ophalen (alleen als Artikelnummer aanwezig is)
         if pd.notna(row['Artikelnummer']):
+
+            # Voorkom dat we opnieuw op fallback '1000000' zoeken → pak dan originele invoer
             if row['Artikelnummer'] == '1000000' and row.get('original_article_number'):
                 lookup_value = row['original_article_number']
             else:
                 lookup_value = row['Artikelnummer']
 
-            if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT', 'interpretatie']:
+            # Alleen lookup als 'Source' leeg of AI/herkenning is
+            if pd.isna(row.get('Source')) or row['Source'] in ['niet gevonden', 'GPT']:
                 current_pg = st.session_state.get('current_productgroup', 'Alfa')
+                
                 description, min_price, max_price, article_number, source, original_article_number, fuzzy_match = find_article_details(
                     lookup_value,
                     current_productgroup=current_pg,
                     original_article_number=row.get('original_article_number') or lookup_value
                 )
 
+
+                # Alleen overschrijven als artikelnaam leeg is of fallback is
                 if description and (pd.isna(row.get('Artikelnaam')) or row['Artikelnaam'] == '1000000'):
                     df.at[index, 'Artikelnaam'] = description
+
                 if min_price is not None and max_price is not None:
                     df.at[index, 'Min_prijs'] = min_price
                     df.at[index, 'Max_prijs'] = max_price
+
                 if source:
                     df.at[index, 'Source'] = source
                 if original_article_number:
@@ -884,22 +881,15 @@ def update_offer_data(df):
                 if fuzzy_match:
                     df.at[index, 'fuzzy_match'] = fuzzy_match
 
-            # SAP-prijs
+            # Stap 3: SAP Prijs ophalen
             if st.session_state.customer_number in sap_prices:
                 sap_prijs = sap_prices[st.session_state.customer_number].get(row['Artikelnummer'], None)
                 df.at[index, 'SAP Prijs'] = sap_prijs if sap_prijs else None
             else:
                 df.at[index, 'SAP Prijs'] = None
 
-        # ✅ Spacer bepalen op basis van klantregel of artikelnaam
-        if pd.isna(row.get("Spacer")) or row["Spacer"] in ["", "15 - alu"]:
-            klantregel = row.get("Klantregel") or row.get("Artikelnaam") or ""
-            spacer_waarde = determine_spacer(klantregel)
-            df.at[index, "Spacer"] = spacer_waarde
- 
     df = bereken_prijs_backend(df)
     return df
-
 
 
 
@@ -1288,23 +1278,22 @@ def extract_all_details(line):
 
     # Stap 3: Zoek eerst of er een omschrijving tussen {} staat
     article_number_match = re.search(r'\{([^}]*)\}', line)  # Alles tussen { }
-
+    
     if article_number_match:
-        article_number = article_number_match.group(1).strip()
+        article_number = article_number_match.group(1).strip()  # Verwijder { } en extra spaties
     else:
         # Stap 4: Verwijder het aantal en de afmetingen tijdelijk uit de regel
         clean_line = line
         if quantity:
-            clean_line = re.sub(r'\b' + str(quantity) + r'\s*[xX]?\b', '', clean_line)
+            clean_line = re.sub(r'\b' + str(quantity) + r'\s*[xX]?\b', '', clean_line)  # Verwijder bijv "4x"
         if width and height:
-            clean_line = re.sub(r'\b' + str(width) + r'\s*[xX*]\s*' + str(height) + r'\b', '', clean_line)
+            clean_line = re.sub(r'\b' + str(width) + r'\s*[xX*]\s*' + str(height) + r'\b', '', clean_line)  # Verwijder bijv "800x800"
 
-        # Stap 5: Zoek reguliere artikelnummernotatie
+        # Stap 5: Gebruik de reguliere regex voor het artikelnummer als er geen {}-omschrijving is
         article_number_match = re.search(r'(\d+(?:[./-]\d+)*(?:[-*#]\d+(?:[./-]\d+)*)+)', line)
         article_number = article_number_match.group(0).strip() if article_number_match else None
 
-    return quantity, width, height, article_number, line  # 👈 klantregel toegevoegd
-
+    return quantity, width, height, article_number
 
 
 
