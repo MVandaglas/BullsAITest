@@ -838,7 +838,6 @@ article_mapping = article_table.set_index("Description")["Material"].to_dict()
 
 def update_offer_data(df):
     for index, row in df.iterrows():
-        st.write(f"🔍 [update_offer_data] Ruw Artikelnummer vóór lookup (index {index}): '{row['Artikelnummer']}'")
 
         # Oppervlakteberekening
         if pd.notna(row['Breedte']) and pd.notna(row['Hoogte']):
@@ -861,8 +860,6 @@ def update_offer_data(df):
                     current_productgroup=current_pg,
                     original_article_number=row.get('original_article_number') or lookup_value
                 )
-
-                st.write(f"✅ [DEBUG] → Artikelnaam (omschrijving): '{description}', Artikelnummer: '{article_number}'")
 
                 if description and (pd.isna(row.get('Artikelnaam')) or row['Artikelnaam'] == '1000000'):
                     df.at[index, 'Artikelnaam'] = description
@@ -888,8 +885,7 @@ def update_offer_data(df):
             klantregel = row.get("Klantregel") or row.get("Artikelnaam") or ""
             spacer_waarde = determine_spacer(klantregel)
             df.at[index, "Spacer"] = spacer_waarde
-            st.write(f"🧩 Spacer bepaald uit '{klantregel}' → {spacer_waarde}")
-
+ 
     df = bereken_prijs_backend(df)
     return df
 
