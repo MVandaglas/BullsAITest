@@ -1718,7 +1718,7 @@ def extract_text_from_pdf(pdf_bytes):
             text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
         return text
     except Exception as e:
-        st.error(f"Fout bij tekstextractie uit PDF: {e}")
+        pass
         return ""
 
 def extract_text_from_excel(excel_bytes):
